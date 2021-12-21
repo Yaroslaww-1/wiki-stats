@@ -15,6 +15,13 @@ repositories {
 dependencies {
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: '2.6.1'
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
+	implementation group: 'io.r2dbc', name: 'r2dbc-postgresql', version: '0.8.10.RELEASE'
+	implementation group: 'org.springframework.data', name: 'spring-data-jpa', version: '2.6.0'
+	implementation group: 'org.springframework.data', name: 'spring-data-r2dbc', version: '1.4.0'
+	implementation group: 'name.nkonev.r2dbc-migrate', name: 'r2dbc-migrate-core', version: '1.8.0'
+	implementation group: 'name.nkonev.r2dbc-migrate', name: 'r2dbc-migrate-resource-reader-reflections', version: '1.8.0'
+	implementation 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 test {
