@@ -29,7 +29,7 @@ services:
       spring.r2dbc.password: Pa55word
       r2dbc.migrate.resourcesPath: "file:/migrations/*.sql"
     volumes:
-      - ./src/main/resources/db/migrations:/migrations
+      - ../../src/main/resources/db/migrations:/migrations
 
 networks:
   wikistats-db-network:

@@ -7,11 +7,12 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = { R2dbcAutoConfiguration.class })
 @ComponentScan(basePackages = { "application", "domain", "infrastructure", "api" })
 @PropertySource("classpath:application.properties")
 @EnableConfigurationProperties
@@ -28,7 +29,7 @@ public class WikiStatsAPI implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments arg0) {
-//        wikimediaServerSendEventsConsumer.startConsuming()
-//                .subscribe();
+        wikimediaServerSendEventsConsumer.startConsuming()
+                .subscribe();
     }
 }

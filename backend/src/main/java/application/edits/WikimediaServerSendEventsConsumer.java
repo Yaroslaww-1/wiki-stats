@@ -14,7 +14,9 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Component
 public class WikimediaServerSendEventsConsumer {
@@ -32,27 +34,36 @@ public class WikimediaServerSendEventsConsumer {
         var consumer = new ExternalServerSentEventsConsumer(url, "/");
         return consumer.startConsuming()
                 .mapNotNull(ServerSentEvent::data)
-                .concatMap(this::mapEventDataToAddEditCommand)
-                .doOnError(throwable -> logger.error("Exception during parsing wikimedia event", throwable))
-                .concatMap(addEditCommandHandler::execute);
+                .concatMap(eventData -> this.executeAddEditCommand(eventData)
+                            .doOnError(throwable -> logger.error("Exception during parsing wikimedia event", throwable))
+                            .onErrorResume(throwable -> Mono.empty())
+                )
+                .log();
     }
 
-    private Mono<AddEditCommand> mapEventDataToAddEditCommand(String eventData) {
-        try {
-            final ObjectNode node = new ObjectMapper().readValue(eventData, ObjectNode.class);
+    private Mono<Edit> executeAddEditCommand(String eventData) {
+        final ObjectNode node;
 
-            return Mono.just(
-                    new AddEditCommand(
-                            node.get("id").asText(),
-                            LocalDateTime.parse(node.get("timestamp").asText()),
-                            node.get("title").asText(),
-                            node.get("comment").asText(),
-                            node.get("editor").asText(),
-                            node.get("bot").asBoolean(),
-                            node.get("wiki").asText()
-                    )
-            );
+        try {
+            node = new ObjectMapper().readValue(eventData, ObjectNode.class);
         } catch (JsonProcessingException e) {
+            return Mono.error(e);
+        }
+
+        try {
+            return addEditCommandHandler.execute(new AddEditCommand(
+                    node.get("id").asText(),
+                    LocalDateTime.ofInstant(
+                            Instant.ofEpochSecond(Long.parseLong(node.get("timestamp").asText())),
+                            ZoneId.of("UTC")
+                    ),
+                    node.get("title").asText(),
+                    node.get("comment").asText(),
+                    node.get("user").asText(),
+                    node.get("bot").asBoolean(),
+                    node.get("wiki").asText()
+            ));
+        } catch (NullPointerException e) {
             return Mono.error(e);
         }
     }

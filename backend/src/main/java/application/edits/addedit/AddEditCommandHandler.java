@@ -45,6 +45,7 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
                             wiki
                     );
                     return editRepository.add(edit);
-                });
+                })
+                .log();
     }
 }

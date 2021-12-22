@@ -9,6 +9,9 @@ public class DatabaseConfiguration {
     public String host;
     public void setHost(String host) { this.host = host; }
 
+    public Integer port;
+    public void setPort(String port) { this.port = Integer.parseInt(port); }
+
     public String database;
     public void setDatabase(String database) { this.database = database; }
 
