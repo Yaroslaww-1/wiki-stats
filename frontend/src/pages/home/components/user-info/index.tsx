@@ -14,7 +14,7 @@ export const UserInfoComponent: React.FC<IProps> = ({ name, isBot }) => {
         Name: {name}
       </div>
       <div>
-        Bot: {isBot}
+        Bot: {`${isBot}`}
       </div>
     </div>
   );

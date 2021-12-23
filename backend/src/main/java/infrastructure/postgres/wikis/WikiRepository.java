@@ -1,10 +1,9 @@
 package infrastructure.postgres.wikis;
 
-import domain.wiki.IWikiRepository;
+import application.wikis.IWikiRepository;
 import domain.wiki.Wiki;
 import infrastructure.postgres.PostgresConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 

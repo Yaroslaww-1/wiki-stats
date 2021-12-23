@@ -1,5 +1,6 @@
-package domain.user;
+package application.users;
 
+import domain.user.User;
 import reactor.core.publisher.Mono;
 
 public interface IUserRepository {

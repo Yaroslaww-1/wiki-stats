@@ -1,7 +1,7 @@
 package infrastructure.postgres.edits;
 
 import domain.edit.Edit;
-import domain.edit.IEditRepository;
+import application.edits.IEditRepository;
 import infrastructure.postgres.PostgresConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

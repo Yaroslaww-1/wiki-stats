@@ -1,5 +1,6 @@
-package domain.edit;
+package application.edits;
 
+import domain.edit.Edit;
 import reactor.core.publisher.Mono;
 
 public interface IEditRepository {

@@ -35,10 +35,9 @@ public class WikimediaServerSendEventsConsumer {
         return consumer.startConsuming()
                 .mapNotNull(ServerSentEvent::data)
                 .concatMap(eventData -> this.executeAddEditCommand(eventData)
-                            .doOnError(throwable -> logger.error("Exception during parsing wikimedia event", throwable))
+                            .doOnError(throwable -> logger.error("Exception during parsing wikimedia event"))
                             .onErrorResume(throwable -> Mono.empty())
-                )
-                .log();
+                );
     }
 
     private Mono<Edit> executeAddEditCommand(String eventData) {

@@ -11,6 +11,10 @@ class WsApi {
     this.subscriptions = new Map();
     this.socket = new WebSocket(WS_BASE_URL);
 
+    this.socket.onopen = () => {
+      this.socket.send("ping");
+    };
+
     this.handleSocketEvent = this.handleSocketEvent.bind(this);
     this.socket.addEventListener("message", this.handleSocketEvent);
   }
