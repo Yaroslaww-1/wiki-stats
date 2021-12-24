@@ -14,6 +14,8 @@ const EditsInfoContainerInner: React.FC<IProps> = observer(({ state }) => {
       lastCreatedEdits={state.lastCreatedEdits}
       keepEdits={state.keepEdits}
       setKeepEdits={state.setKeepEdits}
+      processingDelay={state.processingDelay}
+      setProcessingDelay={state.setProcessingDelay}
     />
   );
 });

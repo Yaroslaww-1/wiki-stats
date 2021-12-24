@@ -22,11 +22,17 @@ import java.time.ZoneId;
 public class WikimediaServerSendEventsConsumer {
     private final Logger logger;
     private final AddEditCommandHandler addEditCommandHandler;
+    private final WikimediaServerSendEventsProcessingDelayManager wikimediaServerSendEventsDelayManager;
 
     @Autowired
-    public WikimediaServerSendEventsConsumer(AddEditCommandHandler addEditCommandHandler, Logger logger) {
+    public WikimediaServerSendEventsConsumer(
+            AddEditCommandHandler addEditCommandHandler,
+            Logger logger,
+            WikimediaServerSendEventsProcessingDelayManager wikimediaServerSendEventsDelayManager
+    ) {
         this.logger = logger;
         this.addEditCommandHandler = addEditCommandHandler;
+        this.wikimediaServerSendEventsDelayManager = wikimediaServerSendEventsDelayManager;
     }
 
     public Flux<Edit> startConsuming() {
@@ -51,18 +57,20 @@ public class WikimediaServerSendEventsConsumer {
         }
 
         try {
-            return addEditCommandHandler.execute(new AddEditCommand(
-                    node.get("id").asText(),
-                    LocalDateTime.ofInstant(
-                            Instant.ofEpochSecond(Long.parseLong(node.get("timestamp").asText())),
-                            ZoneId.of("UTC")
-                    ),
-                    node.get("title").asText(),
-                    node.get("comment").asText(),
-                    node.get("user").asText(),
-                    node.get("bot").asBoolean(),
-                    node.get("wiki").asText()
-            ));
+            return Mono
+                    .from(addEditCommandHandler.execute(new AddEditCommand(
+                            node.get("id").asText(),
+                            LocalDateTime.ofInstant(
+                                    Instant.ofEpochSecond(Long.parseLong(node.get("timestamp").asText())),
+                                    ZoneId.of("UTC")
+                            ),
+                            node.get("title").asText(),
+                            node.get("comment").asText(),
+                            node.get("user").asText(),
+                            node.get("bot").asBoolean(),
+                            node.get("wiki").asText()
+                    )))
+                    .delayElement(wikimediaServerSendEventsDelayManager.getDelay());
         } catch (NullPointerException e) {
             return Mono.error(e);
         }

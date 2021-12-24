@@ -96,11 +96,12 @@ class HttpApi {
   private validateAndReturnResponse<Response>(
     responseData: Response | void,
   ): Response {
-    if (!responseData) {
-      throw new Error("Response data is empty");
-    } else {
-      return responseData;
-    }
+    return responseData!;
+    // if (!responseData) {
+    //   throw new Error("Response data is empty");
+    // } else {
+    //   return responseData;
+    // }
   }
 
   private handleError(error: AxiosError) {
