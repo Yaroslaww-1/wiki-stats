@@ -12,9 +12,13 @@ export const HomePage: React.FC = () => {
   return (
     <PageComponent>
       <div className={styles.root}>
-        <UsersInfoContainer />
-        <WikisInfoContainer />
-        <EditsInfoContainer />
+        <div className={styles.usersWikisInfo}>
+          <UsersInfoContainer />
+          <WikisInfoContainer />
+        </div>
+        <div className={styles.editsInfo}>
+          <EditsInfoContainer />
+        </div>
       </div>
     </PageComponent>
   );

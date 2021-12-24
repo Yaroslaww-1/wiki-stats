@@ -9,19 +9,14 @@
   border: 2px solid lightblue;
   border-radius: 2px;
 
-  .controls {
+  .total {
     display: flex;
     flex-direction: row;
 
-    margin-bottom: 15px;
+    margin: 10px 0px;
   }
 
-  .edits {
-    display: flex;
-    flex-direction: column;
-
-    .edit {
-      margin-top: 10px;
-    }
+  .lastCreatedUser {
+    margin: 10px 0px;
   }
 }

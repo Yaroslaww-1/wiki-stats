@@ -12,10 +12,9 @@ interface IProps {
 export const EditInfoComponent: React.FC<IProps> = ({ title, comment, editorName, wikiName }) => {
   return (
     <div className={styles.root}>
-      <div>Title: {title}</div>
-      <div>Comment: {comment}</div>
-      <div>Editor: {editorName}</div>
-      <div>Wiki: {wikiName}</div>
+      <div><strong>{editorName}</strong> - <strong>{wikiName}</strong></div>
+      <div>{title}</div>
+      <div>{comment}</div>
     </div>
   );
 };

@@ -10,9 +10,7 @@ interface IProps {
 export const UserInfoComponent: React.FC<IProps> = ({ name, isBot }) => {
   return (
     <div className={styles.root}>
-      <div>
-        Name: {name}
-      </div>
+      <strong>{name}</strong>
       <div>
         Bot: {`${isBot}`}
       </div>

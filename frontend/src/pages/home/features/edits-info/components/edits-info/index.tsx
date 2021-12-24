@@ -19,18 +19,19 @@ export const EditsInfoComponent: React.FC<IProps> = ({ lastCreatedEdits, keepEdi
   return (
     <div className={styles.root}>
       <div className={styles.controls}>
-        <span>Keep edits:</span>
+        <span>Keep <strong>edits:</strong></span>
         <input value={keepEdits} onChange={onKeepEditsValueChange}></input>
       </div>
       <div className={styles.edits}>
         {lastCreatedEdits.map(edit => (
-          <EditInfoComponent
-            key={edit.id}
-            title={edit.title}
-            comment={edit.comment}
-            wikiName={edit.wiki.name}
-            editorName={edit.editor.name}
-          />
+          <div key={edit.id} className={styles.edit}>
+            <EditInfoComponent
+              title={edit.title}
+              comment={edit.comment}
+              wikiName={edit.wiki.name}
+              editorName={edit.editor.name}
+            />
+          </div>
         ))}
       </div>
     </div>
