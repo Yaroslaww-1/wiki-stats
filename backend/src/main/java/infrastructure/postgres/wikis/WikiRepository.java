@@ -1,10 +1,15 @@
 package infrastructure.postgres.wikis;
 
 import application.wikis.IWikiRepository;
+import domain.user.User;
 import domain.wiki.Wiki;
 import infrastructure.postgres.PostgresConnectionFactory;
+import infrastructure.postgres.users.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.data.relational.core.query.Criteria.where;
@@ -20,13 +25,27 @@ public class WikiRepository implements IWikiRepository {
     }
 
     @Override
-    public Mono<Wiki> getByName(String name) {
+    public Mono<Wiki> getOne(Query query) {
         return connection.template.select(WikiEntity.class)
-                .matching(
-                        query(where("name").is(name))
-                )
+                .matching(query)
                 .one()
                 .map(this::mapEntityToDomain);
+    }
+
+    @Override
+    public Flux<Wiki> getAll(Query query) {
+        return connection.template.select(WikiEntity.class)
+                .matching(query)
+                .all()
+                .map(this::mapEntityToDomain);
+    }
+
+    @Override
+    public Mono<Long> getTotalCount() {
+        return connection.template.count(
+                query(Criteria.empty()),
+                UserEntity.class
+        );
     }
 
     @Override

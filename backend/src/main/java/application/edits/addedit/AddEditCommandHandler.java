@@ -2,6 +2,7 @@ package application.edits.addedit;
 
 import application.contracts.ICommandHandler;
 import application.users.IUserEventsRealtimeNotifier;
+import application.wikis.IWikiEventsRealtimeNotifier;
 import domain.edit.Edit;
 import application.edits.IEditRepository;
 import application.users.IUserRepository;
@@ -21,18 +22,20 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
     private final IWikiRepository wikiRepository;
     private final IEditRepository editRepository;
     private final IUserEventsRealtimeNotifier userEventsRealtimeNotifier;
+    private final IWikiEventsRealtimeNotifier wikiEventsRealtimeNotifier;
 
     @Autowired
     public AddEditCommandHandler(
             IUserRepository userRepository,
             IWikiRepository wikiRepository,
             IEditRepository editRepository,
-            IUserEventsRealtimeNotifier userEventsRealtimeNotifier
-    ) {
+            IUserEventsRealtimeNotifier userEventsRealtimeNotifier,
+            IWikiEventsRealtimeNotifier wikiEventsRealtimeNotifier) {
         this.userRepository = userRepository;
         this.wikiRepository = wikiRepository;
         this.editRepository = editRepository;
         this.userEventsRealtimeNotifier = userEventsRealtimeNotifier;
+        this.wikiEventsRealtimeNotifier = wikiEventsRealtimeNotifier;
     }
 
     @Override
@@ -42,7 +45,9 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
                 )
                 .switchIfEmpty(this.createUser(command.editor(), command.isBot()));
 
-        var wikiMono = wikiRepository.getByName(command.wiki())
+        var wikiMono = wikiRepository.getOne(
+                    query(where("name").is(command.wiki()))
+                )
                 .switchIfEmpty(this.createWiki(command.wiki()));
 
         return Mono.zip(userMono, wikiMono)
@@ -71,6 +76,7 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
     private Mono<Wiki> createWiki(String name) {
         return Mono
                 .just(new Wiki(name))
-                .delayUntil(wikiRepository::add);
+                .delayUntil(wikiRepository::add)
+                .delayUntil(wikiEventsRealtimeNotifier::notifyWikiCreated);
     }
 }
