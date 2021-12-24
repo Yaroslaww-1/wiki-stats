@@ -4,7 +4,10 @@ import application.users.IUserRepository;
 import domain.user.User;
 import infrastructure.postgres.PostgresConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.data.relational.core.query.Criteria.where;
@@ -20,13 +23,27 @@ class UserRepository implements IUserRepository {
     }
 
     @Override
-    public Mono<User> getByName(String name) {
+    public Mono<User> getOne(Query query) {
         return connection.template.select(UserEntity.class)
-                .matching(
-                        query(where("name").is(name))
-                )
+                .matching(query)
                 .one()
                 .map(this::mapEntityToDomain);
+    }
+
+    @Override
+    public Flux<User> getAll(Query query) {
+        return connection.template.select(UserEntity.class)
+                .matching(query)
+                .all()
+                .map(this::mapEntityToDomain);
+    }
+
+    @Override
+    public Mono<Long> getTotalCount() {
+        return connection.template.count(
+                query(Criteria.empty()),
+                UserEntity.class
+        );
     }
 
     @Override

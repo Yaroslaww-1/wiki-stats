@@ -28,7 +28,7 @@ public class WebSocketHandler implements org.springframework.web.reactive.socket
     @Override
     public Mono<Void> handle(WebSocketSession session) {
         Flux<WebSocketMessage> messages = session.receive()
-                .flatMap(__ -> realtimeNotifier.getEvents(), 1, 1)
+                .flatMap(__ -> realtimeNotifier.getEvents())
                 .flatMap(this::mapEventToString)
                 .map(session::textMessage)
                 .doOnNext(message -> logger.info("Send WS message: " + message));

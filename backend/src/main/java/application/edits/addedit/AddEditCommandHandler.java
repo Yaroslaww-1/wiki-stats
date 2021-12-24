@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.Query.query;
+
 @Component
 public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Edit> {
     private final IUserRepository userRepository;
@@ -34,7 +37,9 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
 
     @Override
     public Mono<Edit> execute(AddEditCommand command) {
-        var userMono = userRepository.getByName(command.editor())
+        var userMono = userRepository.getOne(
+                    query(where("name").is(command.editor()))
+                )
                 .switchIfEmpty(this.createUser(command.editor(), command.isBot()));
 
         var wikiMono = wikiRepository.getByName(command.wiki())

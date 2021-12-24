@@ -1,5 +1,6 @@
 import { makeAutoObservable } from "mobx";
 
+import { UsersApiService } from "@api/users/users-api.service";
 import { IUserModel } from "@api/users/user.model";
 import wsApiHelper from "@api/ws-api.helper";
 import { IUserCreatedEvent, USER_CREATED_EVENT_TYPE } from "@api/users/user-created.event";
@@ -13,12 +14,19 @@ export class UsersInfoState {
 
     this.processUserCreatedEvent = this.processUserCreatedEvent.bind(this);
     wsApiHelper.subscribe(USER_CREATED_EVENT_TYPE, this.processUserCreatedEvent);
+
+    this.getUsersStats();
   }
 
-  processUserCreatedEvent = async (event: IUserCreatedEvent) => {
+  private processUserCreatedEvent = async (event: IUserCreatedEvent) => {
     this.totalUsersCount += 1;
     this.lastCreatedUser = event as IUserModel;
   };
+
+  public async getUsersStats() {
+    const usersStats = await UsersApiService.getUsersStats();
+    this.totalUsersCount += usersStats.count;
+  }
 }
 
 export const usersInfoState = new UsersInfoState();
