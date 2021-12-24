@@ -44,7 +44,7 @@ public class WikiRepository implements IWikiRepository {
     public Mono<Long> getTotalCount() {
         return connection.template.count(
                 query(Criteria.empty()),
-                UserEntity.class
+                WikiEntity.class
         );
     }
 

@@ -33,6 +33,7 @@ public class WikimediaServerSendEventsConsumer {
         var url = "https://stream.wikimedia.org/v2/stream/recentchange";
         var consumer = new ExternalServerSentEventsConsumer(url, "/");
         return consumer.startConsuming()
+                .onBackpressureDrop() //TODO: probably not the best solution
                 .mapNotNull(ServerSentEvent::data)
                 .concatMap(eventData -> this.executeAddEditCommand(eventData)
                             .doOnError(throwable -> logger.error("Exception during parsing wikimedia event: " + throwable.getMessage()))

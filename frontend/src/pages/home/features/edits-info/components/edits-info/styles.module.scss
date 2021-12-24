@@ -1,0 +1,11 @@
+.root {
+  .controls {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .edits {
+    display: flex;
+    flex-direction: column;
+  }
+}

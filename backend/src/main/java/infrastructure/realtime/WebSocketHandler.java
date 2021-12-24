@@ -1,9 +1,7 @@
 package infrastructure.realtime;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,18 +29,14 @@ public class WebSocketHandler implements org.springframework.web.reactive.socket
                 .flatMap(__ -> realtimeNotifier.getEvents())
                 .flatMap(this::mapEventToString)
                 .map(session::textMessage)
-                .doOnNext(message -> logger.info("Send WS message: " + message));
+                .doOnError(throwable -> logger.error("Exception during sending WS event: " + throwable.getMessage()))
+                .doOnNext(message -> logger.info("Send WS event: " + message));
         return session.send(messages);
     }
 
     private Mono<String> mapEventToString(Event event) {
-        ObjectMapper mapper = new ObjectMapper();
-
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-
         try {
-            return Mono.just(mapper.writeValueAsString(event));
+            return Mono.just(objectMapper.writeValueAsString(event));
         } catch (JsonProcessingException e) {
             return Mono.error(e);
         }
