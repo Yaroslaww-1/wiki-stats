@@ -1,12 +1,13 @@
-package application.edits;
+package infrastructure;
 
+import application.edits.IWikimediaServerSendEventsProcessingDelayManager;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
-public class WikimediaServerSendEventsProcessingDelayManager {
+public class WikimediaServerSendEventsProcessingDelayManager implements IWikimediaServerSendEventsProcessingDelayManager {
     private final AtomicLong delay = new AtomicLong(0);
 
     public void setDelay(Duration delay) {

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import domain.edit.Edit;
 import infrastructure.ExternalServerSentEventsConsumer;
+import infrastructure.WikimediaServerSendEventsProcessingDelayManager;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.codec.ServerSentEvent;
