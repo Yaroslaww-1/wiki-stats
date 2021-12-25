@@ -5,4 +5,5 @@ import reactor.core.publisher.Mono;
 
 public interface IEditEventsRealtimeNotifier {
     Mono<Void> notifyEditCreated(Edit edit);
+    Mono<Void> notifySubscribedUserEditCreated(Edit edit);
 }

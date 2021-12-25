@@ -16,11 +16,11 @@ export class EditsInfoState {
     this.setKeepEdits = this.setKeepEdits.bind(this);
     this.setProcessingDelay = this.setProcessingDelay.bind(this);
 
-    this.processWikiCreatedEvent = this.processWikiCreatedEvent.bind(this);
-    wsApiHelper.subscribe(EDIT_CREATED_EVENT_TYPE, this.processWikiCreatedEvent);
+    this.processEditCreatedEvent = this.processEditCreatedEvent.bind(this);
+    wsApiHelper.subscribe(EDIT_CREATED_EVENT_TYPE, this.processEditCreatedEvent);
   }
 
-  private processWikiCreatedEvent = async (event: IEditCreatedEvent) => {
+  private processEditCreatedEvent = async (event: IEditCreatedEvent) => {
     this.lastCreatedEdits.push(event);
     this.lastCreatedEdits = this.lastCreatedEdits.slice(-this.keepEdits);
   };

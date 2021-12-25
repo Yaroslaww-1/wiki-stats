@@ -2,6 +2,7 @@ package application.edits.addedit;
 
 import application.contracts.ICommandHandler;
 import application.edits.IEditEventsRealtimeNotifier;
+import application.edits.IEditsSubscriptionManager;
 import application.users.IUserEventsRealtimeNotifier;
 import application.wikis.IWikiEventsRealtimeNotifier;
 import domain.edit.Edit;
@@ -29,6 +30,7 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
     private final IUserEventsRealtimeNotifier userEventsRealtimeNotifier;
     private final IWikiEventsRealtimeNotifier wikiEventsRealtimeNotifier;
     private final IEditEventsRealtimeNotifier editEventsRealtimeNotifier;
+    private final IEditsSubscriptionManager editsSubscriptionManager;
 
     @Autowired
     public AddEditCommandHandler(
@@ -37,13 +39,15 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
             IEditRepository editRepository,
             IUserEventsRealtimeNotifier userEventsRealtimeNotifier,
             IWikiEventsRealtimeNotifier wikiEventsRealtimeNotifier,
-            IEditEventsRealtimeNotifier editEventsRealtimeNotifier) {
+            IEditEventsRealtimeNotifier editEventsRealtimeNotifier,
+            IEditsSubscriptionManager editsSubscriptionManager) {
         this.userRepository = userRepository;
         this.wikiRepository = wikiRepository;
         this.editRepository = editRepository;
         this.userEventsRealtimeNotifier = userEventsRealtimeNotifier;
         this.wikiEventsRealtimeNotifier = wikiEventsRealtimeNotifier;
         this.editEventsRealtimeNotifier = editEventsRealtimeNotifier;
+        this.editsSubscriptionManager = editsSubscriptionManager;
     }
 
     @Override
@@ -96,7 +100,8 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
         return Mono
                 .just(new Edit(id, timestamp, title, comment, user, wiki))
                 .delayUntil(editRepository::add)
-                .delayUntil(editEventsRealtimeNotifier::notifyEditCreated);
+                .delayUntil(editEventsRealtimeNotifier::notifyEditCreated)
+                .delayUntil(this::notifySubscribedUserEditCreated);
     }
 
     private Mono<User> createUser(String editor, Boolean isBot) {
@@ -111,5 +116,11 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
                 .just(new Wiki(name))
                 .delayUntil(wikiRepository::add)
                 .delayUntil(wikiEventsRealtimeNotifier::notifyWikiCreated);
+    }
+
+    private Mono<Edit> notifySubscribedUserEditCreated(Edit edit) {
+        return Mono.just(edit)
+                .filter(e -> editsSubscriptionManager.isSubscribedForUserEdits(e.getEditor().getId()))
+                .delayUntil(editEventsRealtimeNotifier::notifySubscribedUserEditCreated);
     }
 }

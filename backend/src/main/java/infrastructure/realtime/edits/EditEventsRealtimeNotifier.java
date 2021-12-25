@@ -36,4 +36,26 @@ public class EditEventsRealtimeNotifier implements IEditEventsRealtimeNotifier {
 
         return Mono.empty();
     }
+
+    @Override
+    public Mono<Void> notifySubscribedUserEditCreated(Edit edit) {
+        var eventPayload = new EditCreatedEventPayload(
+                edit.getId(),
+                edit.getTimestamp(),
+                edit.getTitle(),
+                edit.getComment(),
+                new EditorOfEditCreatedEventPayload(
+                        edit.getEditor().getId(),
+                        edit.getEditor().getName()
+                ),
+                new WikiOfEditCreatedEventPayload(
+                        edit.getWiki().getId(),
+                        edit.getWiki().getName()
+                )
+        );
+
+        realtimeNotifier.sendEvent(new Event("SubscribedUserEditCreated", eventPayload));
+
+        return Mono.empty();
+    }
 }

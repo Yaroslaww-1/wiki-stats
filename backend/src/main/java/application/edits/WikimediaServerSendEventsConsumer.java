@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import domain.edit.Edit;
 import infrastructure.ExternalServerSentEventsConsumer;
-import infrastructure.WikimediaServerSendEventsProcessingDelayManager;
+import infrastructure.EditsProcessingDelayManager;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.codec.ServerSentEvent;
@@ -23,13 +23,13 @@ import java.time.ZoneId;
 public class WikimediaServerSendEventsConsumer {
     private final Logger logger;
     private final AddEditCommandHandler addEditCommandHandler;
-    private final WikimediaServerSendEventsProcessingDelayManager wikimediaServerSendEventsDelayManager;
+    private final IEditsProcessingDelayManager wikimediaServerSendEventsDelayManager;
 
     @Autowired
     public WikimediaServerSendEventsConsumer(
             AddEditCommandHandler addEditCommandHandler,
             Logger logger,
-            WikimediaServerSendEventsProcessingDelayManager wikimediaServerSendEventsDelayManager
+            IEditsProcessingDelayManager wikimediaServerSendEventsDelayManager
     ) {
         this.logger = logger;
         this.addEditCommandHandler = addEditCommandHandler;
@@ -58,6 +58,8 @@ public class WikimediaServerSendEventsConsumer {
         }
 
         try {
+            Long delay = wikimediaServerSendEventsDelayManager.getDelay().toMillis();
+            System.out.println(delay);
             return Mono
                     .from(addEditCommandHandler.execute(new AddEditCommand(
                             node.get("id").asText(),
