@@ -9,6 +9,7 @@ import { AllRecentEditsListContainer } from "./features/all-recent-edits/contain
 import { SubscribedUserEditsGraphContainer } from "./features/subscribed-user-stats/containers/subscribed-user-edits-graph";
 
 import styles from "./styles.module.scss";
+import { ResetContainer } from "./features/reset/containers";
 
 export const HomePage: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ export const HomePage: React.FC = () => {
           <AllUsersStatsContainer />
           <AllWikisStatsContainer />
           <SubscribedUserEditsGraphContainer />
+          <ResetContainer />
         </div>
         <div className={styles.editsInfo}>
           <SubscribedUserRecentEditsListContainer />

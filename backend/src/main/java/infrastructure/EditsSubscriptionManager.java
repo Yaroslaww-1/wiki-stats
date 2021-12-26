@@ -19,4 +19,9 @@ public class EditsSubscriptionManager implements IEditsSubscriptionManager {
     public Boolean isSubscribedForUserEdits(String userId) {
         return subscriptions.contains(userId);
     }
+
+    @Override
+    public void unsubscribeAll() {
+        subscriptions.clear();
+    }
 }
