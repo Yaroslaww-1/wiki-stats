@@ -2,26 +2,26 @@ import React from "react";
 
 import { PageComponent } from "@components/page";
 
-import { UsersInfoContainer } from "./features/users-info/containers/users-info";
-import { WikisInfoContainer } from "./features/wikis-info/containers/wikis-info";
+import { AllUsersStatsContainer } from "./features/all-users-stats/containers";
+import { AllWikisStatsContainer } from "./features/all-wikis-stats/containers";
+import { SubscribedUserRecentEditsListContainer } from "./features/subscribed-user-stats/containers/subscribed-user-recent-edits-list";
+import { AllRecentEditsListContainer } from "./features/all-recent-edits/containers";
+import { SubscribedUserEditsGraphContainer } from "./features/subscribed-user-stats/containers/subscribed-user-edits-graph";
 
 import styles from "./styles.module.scss";
-import { EditsInfoContainer } from "./features/edits-info/containers/edits-info";
-import { SubscribedUserEditsContainer } from "./features/subscribed-user-edits/containers/edits-info";
-import { SubscribedUserEditsGraphContainer } from "./features/subscribed-user-edits/containers/edits-graph";
 
 export const HomePage: React.FC = () => {
   return (
     <PageComponent>
       <div className={styles.root}>
         <div className={styles.usersWikisInfo}>
-          <UsersInfoContainer />
-          <WikisInfoContainer />
-          <SubscribedUserEditsContainer />
+          <AllUsersStatsContainer />
+          <AllWikisStatsContainer />
+          <SubscribedUserEditsGraphContainer />
         </div>
         <div className={styles.editsInfo}>
-          <EditsInfoContainer />
-          <SubscribedUserEditsGraphContainer />
+          <SubscribedUserRecentEditsListContainer />
+          <AllRecentEditsListContainer />
         </div>
       </div>
     </PageComponent>
