@@ -9,6 +9,8 @@ import application.users.getstats.UsersStatsDto;
 import application.users.getusereditsstats.GetUserEditsStatsQuery;
 import application.users.getusereditsstats.GetUserEditsStatsQueryHandler;
 import application.users.getusereditsstats.UserEditsStatsDto;
+import application.users.subscribeforuseredits.SubscribeForUserEditsCommand;
+import application.users.subscribeforuseredits.SubscribeForUserEditsCommandHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -21,16 +23,18 @@ public class UsersController {
     private final GetUsersListQueryHandler getUsersListQueryHandler;
     private final GetUsersStatsQueryHandler getUsersStatsQueryHandler;
     private final GetUserEditsStatsQueryHandler getUserEditsStatsQueryHandler;
+    private final SubscribeForUserEditsCommandHandler subscribeForUserEditsCommandHandler;
 
     @Autowired
     public UsersController(
             GetUsersListQueryHandler getUsersListQueryHandler,
             GetUsersStatsQueryHandler getUsersStatsQueryHandler,
-            GetUserEditsStatsQueryHandler getUserEditsStatsQueryHandler
-    ) {
+            GetUserEditsStatsQueryHandler getUserEditsStatsQueryHandler,
+            SubscribeForUserEditsCommandHandler subscribeForUserEditsCommandHandler) {
         this.getUsersListQueryHandler = getUsersListQueryHandler;
         this.getUsersStatsQueryHandler = getUsersStatsQueryHandler;
         this.getUserEditsStatsQueryHandler = getUserEditsStatsQueryHandler;
+        this.subscribeForUserEditsCommandHandler = subscribeForUserEditsCommandHandler;
     }
 
     @GetMapping("")
@@ -47,6 +51,12 @@ public class UsersController {
     private Mono<UsersStatsDto> getStats() {
         var query = new GetUsersStatsQuery();
         return getUsersStatsQueryHandler.execute(query);
+    }
+
+    @PostMapping("{userName}/subscribe")
+    private Mono<Void> postSubscribe(@PathVariable String userName) {
+        var command = new SubscribeForUserEditsCommand(userName);
+        return subscribeForUserEditsCommandHandler.execute(command);
     }
 
     @GetMapping("{userName}/stats")

@@ -2,7 +2,7 @@ import { makeAutoObservable } from "mobx";
 
 import wsApiHelper from "@api/ws-api.helper";
 import { IEditModel } from "@api/edits/edit.model";
-import { SUBSCRIBED_USER_EDIT_CREATED_EVENT_TYPE, ISubscribedUserEditCreatedEvent } from "@api/edits/subscribed-user-edit-created.event";
+import { SUBSCRIBED_USER_EDIT_CREATED_EVENT_TYPE, ISubscribedUserEditCreatedEvent } from "@api/users/subscribed-user-edit-created.event";
 import { EditsApiService } from "@api/edits/edits-api.service";
 import { IUserEditsStatsModel } from "@api/users/user-edits-stats.model";
 import { UsersApiService } from "@api/users/users-api.service";
@@ -47,7 +47,7 @@ export class SubscribedUserEditsInfoState {
   }
 
   public async subscribeForUserEdits() {
-    await EditsApiService.subscribeForUserEdits({ userName: this.subscribedUserName });
+    await UsersApiService.subscribeForUserEdits({ userName: this.subscribedUserName });
     this.subscribedUserEditsStats = await UsersApiService.getUserEditsStats({
       userName: this.subscribedUserName,
       window: this.editsStatsWindow,
