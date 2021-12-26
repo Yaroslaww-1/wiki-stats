@@ -59,7 +59,6 @@ public class WikimediaServerSendEventsConsumer {
 
         try {
             Long delay = wikimediaServerSendEventsDelayManager.getDelay().toMillis();
-            System.out.println(delay);
             return Mono
                     .from(addEditCommandHandler.execute(new AddEditCommand(
                             node.get("id").asText(),
@@ -71,7 +70,8 @@ public class WikimediaServerSendEventsConsumer {
                             node.get("comment").asText(),
                             node.get("user").asText(),
                             node.get("bot").asBoolean(),
-                            node.get("wiki").asText()
+                            node.get("wiki").asText(),
+                            node.get("type").asText()
                     )))
                     .delayElement(wikimediaServerSendEventsDelayManager.getDelay());
         } catch (NullPointerException e) {

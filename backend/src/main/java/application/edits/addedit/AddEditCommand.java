@@ -9,5 +9,6 @@ public record AddEditCommand(
         String comment,
         String editor,
         Boolean isBot,
-        String wiki
+        String wiki,
+        String type
 ) { }

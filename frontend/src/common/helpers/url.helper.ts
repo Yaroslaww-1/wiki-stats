@@ -1,11 +1,18 @@
 import qs from "qs";
 
-export const stringifyParams = (params: unknown) =>
-  qs.stringify(params, {
+export const stringifyParams = (params: unknown) => {
+  const paramsString = qs.stringify(params, {
     arrayFormat: "comma",
     encodeValuesOnly: true,
     encode: false,
   });
+
+  if (paramsString[paramsString.length - 1] == "?") {
+    return paramsString.substring(0, paramsString.length - 1);
+  } else {
+    return paramsString;
+  }
+};
 
 export const parseUrlParams = <T>(params: string): T => {
   const parsed = qs.parse(params, {

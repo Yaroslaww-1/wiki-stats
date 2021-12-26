@@ -2,8 +2,8 @@ package api.controllers.edits;
 
 import application.edits.setprocessingdelay.SetProcessingDelayCommand;
 import application.edits.setprocessingdelay.SetProcessingDelayCommandHandler;
-import application.edits.subscribeforuseredits.SubscribeForUserEditsCommand;
-import application.edits.subscribeforuseredits.SubscribeForUserEditsCommandHandler;
+import application.users.subscribeforuseredits.SubscribeForUserEditsCommand;
+import application.users.subscribeforuseredits.SubscribeForUserEditsCommandHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;

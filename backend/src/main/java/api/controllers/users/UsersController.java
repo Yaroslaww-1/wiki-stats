@@ -6,6 +6,9 @@ import application.users.getlist.UserDto;
 import application.users.getstats.GetUsersStatsQuery;
 import application.users.getstats.GetUsersStatsQueryHandler;
 import application.users.getstats.UsersStatsDto;
+import application.users.getusereditsstats.GetUserEditsStatsQuery;
+import application.users.getusereditsstats.GetUserEditsStatsQueryHandler;
+import application.users.getusereditsstats.UserEditsStatsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -17,14 +20,17 @@ import reactor.core.publisher.Mono;
 public class UsersController {
     private final GetUsersListQueryHandler getUsersListQueryHandler;
     private final GetUsersStatsQueryHandler getUsersStatsQueryHandler;
+    private final GetUserEditsStatsQueryHandler getUserEditsStatsQueryHandler;
 
     @Autowired
     public UsersController(
             GetUsersListQueryHandler getUsersListQueryHandler,
-            GetUsersStatsQueryHandler getUsersStatsQueryHandler
+            GetUsersStatsQueryHandler getUsersStatsQueryHandler,
+            GetUserEditsStatsQueryHandler getUserEditsStatsQueryHandler
     ) {
         this.getUsersListQueryHandler = getUsersListQueryHandler;
         this.getUsersStatsQueryHandler = getUsersStatsQueryHandler;
+        this.getUserEditsStatsQueryHandler = getUserEditsStatsQueryHandler;
     }
 
     @GetMapping("")
@@ -41,6 +47,15 @@ public class UsersController {
     private Mono<UsersStatsDto> getStats() {
         var query = new GetUsersStatsQuery();
         return getUsersStatsQueryHandler.execute(query);
+    }
+
+    @GetMapping("{userName}/stats")
+    private Mono<UserEditsStatsDto> getUserEditsStats(
+            @PathVariable String userName,
+            @RequestParam Long window
+    ) {
+        var query = new GetUserEditsStatsQuery(userName, window);
+        return getUserEditsStatsQueryHandler.execute(query);
     }
 }
 

@@ -19,7 +19,19 @@ CREATE TABLE edits
     "timestamp" TIMESTAMP NOT NULL,
     title VARCHAR(255) NOT NULL,
     comment TEXT NOT NULL,
+    type VARCHAR(63) NOT NULL,
     editor_id VARCHAR(63) NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     wiki_id VARCHAR(63) NOT NULL REFERENCES wikis (id) ON UPDATE CASCADE,
     CONSTRAINT pk_edits_id PRIMARY KEY (id)
+);
+
+CREATE TABLE user_edit_stats
+(
+    id VARCHAR(63) NOT NULL,
+    day INTEGER NOT NULL,
+    year INTEGER NOT NULL,
+    add_count INTEGER NOT NULL,
+    edit_count INTEGER NOT NULL,
+    user_id VARCHAR(63) NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+    CONSTRAINT pk_user_edit_stats_id PRIMARY KEY (id)
 );

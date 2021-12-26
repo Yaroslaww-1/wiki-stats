@@ -2,6 +2,7 @@ package infrastructure.realtime.edits;
 
 import application.edits.IEditEventsRealtimeNotifier;
 import domain.edit.Edit;
+import domain.user.UserEditStats;
 import infrastructure.realtime.Event;
 import infrastructure.realtime.IRealtimeNotifier;
 import org.springframework.stereotype.Component;
@@ -55,6 +56,21 @@ public class EditEventsRealtimeNotifier implements IEditEventsRealtimeNotifier {
         );
 
         realtimeNotifier.sendEvent(new Event("SubscribedUserEditCreated", eventPayload));
+
+        return Mono.empty();
+    }
+
+    @Override
+    public Mono<Void> notifyEditStatsChanged(UserEditStats userEditStats) {
+        var eventPayload = new EditStatsChangedEventPayload(
+                userEditStats.getDay(),
+                userEditStats.getYear(),
+                userEditStats.getAddCount(),
+                userEditStats.getEditCount(),
+                userEditStats.getUserId()
+        );
+
+        realtimeNotifier.sendEvent(new Event("EditStatsChanged", eventPayload));
 
         return Mono.empty();
     }

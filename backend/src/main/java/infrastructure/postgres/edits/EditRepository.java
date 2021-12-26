@@ -29,6 +29,7 @@ public class EditRepository implements IEditRepository {
                 edit.getTimestamp(),
                 edit.getTitle(),
                 edit.getComment(),
+                edit.getType(),
                 edit.getEditor().getId(),
                 edit.getWiki().getId()
         );

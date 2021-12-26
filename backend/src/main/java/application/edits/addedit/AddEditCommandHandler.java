@@ -2,7 +2,8 @@ package application.edits.addedit;
 
 import application.contracts.ICommandHandler;
 import application.edits.IEditEventsRealtimeNotifier;
-import application.edits.IEditsSubscriptionManager;
+import application.users.IEditsSubscriptionManager;
+import application.users.IUserEditStatsEntityRepository;
 import application.users.IUserEventsRealtimeNotifier;
 import application.wikis.IWikiEventsRealtimeNotifier;
 import domain.edit.Edit;
@@ -10,6 +11,7 @@ import application.edits.IEditRepository;
 import application.users.IUserRepository;
 import domain.user.User;
 import application.wikis.IWikiRepository;
+import domain.user.UserEditStats;
 import domain.wiki.Wiki;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,6 +29,7 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
     private final IUserRepository userRepository;
     private final IWikiRepository wikiRepository;
     private final IEditRepository editRepository;
+    private final IUserEditStatsEntityRepository userEditStatsEntityRepository;
     private final IUserEventsRealtimeNotifier userEventsRealtimeNotifier;
     private final IWikiEventsRealtimeNotifier wikiEventsRealtimeNotifier;
     private final IEditEventsRealtimeNotifier editEventsRealtimeNotifier;
@@ -37,6 +40,7 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
             IUserRepository userRepository,
             IWikiRepository wikiRepository,
             IEditRepository editRepository,
+            IUserEditStatsEntityRepository userEditStatsEntityRepository,
             IUserEventsRealtimeNotifier userEventsRealtimeNotifier,
             IWikiEventsRealtimeNotifier wikiEventsRealtimeNotifier,
             IEditEventsRealtimeNotifier editEventsRealtimeNotifier,
@@ -44,6 +48,7 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
         this.userRepository = userRepository;
         this.wikiRepository = wikiRepository;
         this.editRepository = editRepository;
+        this.userEditStatsEntityRepository = userEditStatsEntityRepository;
         this.userEventsRealtimeNotifier = userEventsRealtimeNotifier;
         this.wikiEventsRealtimeNotifier = wikiEventsRealtimeNotifier;
         this.editEventsRealtimeNotifier = editEventsRealtimeNotifier;
@@ -70,8 +75,10 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
                         command.id(),
                         command.timestamp(),
                         command.title(),
-                        command.comment()
-                ));
+                        command.comment(),
+                        command.type()
+                ))
+                .delayUntil(this::createOrUpdateUserEditStats);
     }
 
     /**
@@ -93,12 +100,13 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
             String id,
             LocalDateTime timestamp,
             String title,
-            String comment
+            String comment,
+            String type
     ) {
         var user = userWikiTuple.getT1();
         var wiki = userWikiTuple.getT2();
         return Mono
-                .just(new Edit(id, timestamp, title, comment, user, wiki))
+                .just(new Edit(id, timestamp, title, comment, type, user, wiki))
                 .delayUntil(editRepository::add)
                 .delayUntil(editEventsRealtimeNotifier::notifyEditCreated)
                 .delayUntil(this::notifySubscribedUserEditCreated);
@@ -122,5 +130,34 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
         return Mono.just(edit)
                 .filter(e -> editsSubscriptionManager.isSubscribedForUserEdits(e.getEditor().getId()))
                 .delayUntil(editEventsRealtimeNotifier::notifySubscribedUserEditCreated);
+    }
+
+    private Mono<UserEditStats> createOrUpdateUserEditStats(Edit edit) {
+        return userEditStatsEntityRepository
+                .getOne(
+                        query(where("user_id").is(edit.getEditor().getId()))
+                )
+                .switchIfEmpty(userEditStatsEntityRepository.add(
+                        new UserEditStats(edit.getEditor().getId())
+                ))
+                .delayUntil(userEditStats -> {
+                    if (edit.isEdit()) {
+                        userEditStats.incrementEdits();
+                    }
+
+                    if (edit.isAdd()) {
+                        userEditStats.incrementAdds();
+                    }
+
+                    return Mono.just(userEditStats);
+                })
+                .delayUntil(userEditStatsEntityRepository::update)
+                .delayUntil(this::notifySubscribedUserEditStatsChanged);
+    }
+
+    private Mono<UserEditStats> notifySubscribedUserEditStatsChanged(UserEditStats userEditStats) {
+        return Mono.just(userEditStats)
+                .filter(e -> editsSubscriptionManager.isSubscribedForUserEdits(e.getUserId()))
+                .delayUntil(editEventsRealtimeNotifier::notifyEditStatsChanged);
     }
 }

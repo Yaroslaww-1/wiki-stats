@@ -1,7 +1,7 @@
-package application.edits.subscribeforuseredits;
+package application.users.subscribeforuseredits;
 
 import application.contracts.ICommandHandler;
-import application.edits.IEditsSubscriptionManager;
+import application.users.IEditsSubscriptionManager;
 import application.users.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

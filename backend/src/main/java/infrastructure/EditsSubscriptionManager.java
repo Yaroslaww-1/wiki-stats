@@ -1,6 +1,6 @@
 package infrastructure;
 
-import application.edits.IEditsSubscriptionManager;
+import application.users.IEditsSubscriptionManager;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -11,6 +11,7 @@ public record EditEntity(
         LocalDateTime timestamp,
         String title,
         String comment,
+        String type,
         String editorId,
         String wikiId
 ) { }

@@ -8,6 +8,7 @@ import { WikisInfoContainer } from "./features/wikis-info/containers/wikis-info"
 import styles from "./styles.module.scss";
 import { EditsInfoContainer } from "./features/edits-info/containers/edits-info";
 import { SubscribedUserEditsContainer } from "./features/subscribed-user-edits/containers/edits-info";
+import { SubscribedUserEditsGraphContainer } from "./features/subscribed-user-edits/containers/edits-graph";
 
 export const HomePage: React.FC = () => {
   return (
@@ -20,6 +21,7 @@ export const HomePage: React.FC = () => {
         </div>
         <div className={styles.editsInfo}>
           <EditsInfoContainer />
+          <SubscribedUserEditsGraphContainer />
         </div>
       </div>
     </PageComponent>

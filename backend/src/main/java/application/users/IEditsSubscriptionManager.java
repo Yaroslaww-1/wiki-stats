@@ -1,4 +1,4 @@
-package application.edits;
+package application.users;
 
 public interface IEditsSubscriptionManager {
     void subscribeForUserEdits(String userId);
