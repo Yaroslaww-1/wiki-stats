@@ -6,11 +6,11 @@ import application.users.getlist.UserDto;
 import application.users.getstats.GetUsersStatsQuery;
 import application.users.getstats.GetUsersStatsQueryHandler;
 import application.users.getstats.UsersStatsDto;
-import application.users.getusereditsstats.GetUserEditsStatsQuery;
-import application.users.getusereditsstats.GetUserEditsStatsQueryHandler;
-import application.users.getusereditsstats.UserEditsStatsDto;
-import application.users.subscribeforuseredits.SubscribeForUserEditsCommand;
-import application.users.subscribeforuseredits.SubscribeForUserEditsCommandHandler;
+import application.users.getuserchangesstats.GetUserChangesStatsQuery;
+import application.users.getuserchangesstats.GetUserChangesStatsQueryHandler;
+import application.users.getuserchangesstats.UserChangesStatsDto;
+import application.users.subscribeforuserchanges.SubscribeForUserChangesCommand;
+import application.users.subscribeforuserchanges.SubscribeForUserChangesCommandHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -22,19 +22,19 @@ import reactor.core.publisher.Mono;
 public class UsersController {
     private final GetUsersListQueryHandler getUsersListQueryHandler;
     private final GetUsersStatsQueryHandler getUsersStatsQueryHandler;
-    private final GetUserEditsStatsQueryHandler getUserEditsStatsQueryHandler;
-    private final SubscribeForUserEditsCommandHandler subscribeForUserEditsCommandHandler;
+    private final GetUserChangesStatsQueryHandler getUserChangesStatsQueryHandler;
+    private final SubscribeForUserChangesCommandHandler subscribeForUserChangesCommandHandler;
 
     @Autowired
     public UsersController(
             GetUsersListQueryHandler getUsersListQueryHandler,
             GetUsersStatsQueryHandler getUsersStatsQueryHandler,
-            GetUserEditsStatsQueryHandler getUserEditsStatsQueryHandler,
-            SubscribeForUserEditsCommandHandler subscribeForUserEditsCommandHandler) {
+            GetUserChangesStatsQueryHandler getUserChangesStatsQueryHandler,
+            SubscribeForUserChangesCommandHandler subscribeForUserChangesCommandHandler) {
         this.getUsersListQueryHandler = getUsersListQueryHandler;
         this.getUsersStatsQueryHandler = getUsersStatsQueryHandler;
-        this.getUserEditsStatsQueryHandler = getUserEditsStatsQueryHandler;
-        this.subscribeForUserEditsCommandHandler = subscribeForUserEditsCommandHandler;
+        this.getUserChangesStatsQueryHandler = getUserChangesStatsQueryHandler;
+        this.subscribeForUserChangesCommandHandler = subscribeForUserChangesCommandHandler;
     }
 
     @GetMapping("")
@@ -55,18 +55,18 @@ public class UsersController {
 
     @PostMapping("{userName}/subscribe")
     private Mono<Void> postSubscribe(@PathVariable String userName) {
-        var command = new SubscribeForUserEditsCommand(userName);
-        return subscribeForUserEditsCommandHandler.execute(command);
+        var command = new SubscribeForUserChangesCommand(userName);
+        return subscribeForUserChangesCommandHandler.execute(command);
     }
 
     @GetMapping("{userName}/stats")
-    private Mono<UserEditsStatsDto> getUserEditsStats(
+    private Mono<UserChangesStatsDto> getUserChangesStats(
             @PathVariable String userName,
             @RequestParam Long window,
             @RequestParam Long step
     ) {
-        var query = new GetUserEditsStatsQuery(userName, window, step);
-        return getUserEditsStatsQueryHandler.execute(query);
+        var query = new GetUserChangesStatsQuery(userName, window, step);
+        return getUserChangesStatsQueryHandler.execute(query);
     }
 }
 

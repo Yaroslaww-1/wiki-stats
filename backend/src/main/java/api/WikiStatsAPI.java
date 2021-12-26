@@ -1,7 +1,7 @@
 package api;
 
 import api.configuration.LoggerConfiguration;
-import application.edits.WikimediaServerSendEventsConsumer;
+import application.changes.WikimediaServerSendEventsConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

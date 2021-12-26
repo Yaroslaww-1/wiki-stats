@@ -13,7 +13,7 @@ CREATE TABLE wikis
     CONSTRAINT pk_wikis_id PRIMARY KEY (id)
 );
 
-CREATE TABLE edits
+CREATE TABLE changes
 (
     id VARCHAR(63) NOT NULL,
     "timestamp" TIMESTAMP NOT NULL,
@@ -22,10 +22,10 @@ CREATE TABLE edits
     type VARCHAR(63) NOT NULL,
     editor_id VARCHAR(63) NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     wiki_id VARCHAR(63) NOT NULL REFERENCES wikis (id) ON UPDATE CASCADE,
-    CONSTRAINT pk_edits_id PRIMARY KEY (id)
+    CONSTRAINT pk_changes_id PRIMARY KEY (id)
 );
 
-CREATE TABLE user_edit_stats
+CREATE TABLE user_change_stats
 (
     id VARCHAR(63) NOT NULL,
     start_timestamp TIMESTAMP NOT NULL,
@@ -33,5 +33,5 @@ CREATE TABLE user_edit_stats
     add_count INTEGER NOT NULL,
     edit_count INTEGER NOT NULL,
     user_id VARCHAR(63) NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-    CONSTRAINT pk_user_edit_stats_id PRIMARY KEY (id)
+    CONSTRAINT pk_user_changes_stats_id PRIMARY KEY (id)
 );

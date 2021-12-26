@@ -4,9 +4,9 @@ import { PageComponent } from "@components/page";
 
 import { AllUsersStatsContainer } from "./features/all-users-stats/containers";
 import { AllWikisStatsContainer } from "./features/all-wikis-stats/containers";
-import { SubscribedUserRecentEditsListContainer } from "./features/subscribed-user-stats/containers/subscribed-user-recent-edits-list";
-import { AllRecentEditsListContainer } from "./features/all-recent-edits/containers";
-import { SubscribedUserEditsGraphContainer } from "./features/subscribed-user-stats/containers/subscribed-user-edits-graph";
+import { SubscribedUserRecentChangesListContainer } from "./features/subscribed-user-stats/containers/subscribed-user-recent-changes-list";
+import { AllRecentChangesListContainer } from "./features/all-recent-changes/containers";
+import { SubscribedUserChangesGraphContainer } from "./features/subscribed-user-stats/containers/subscribed-user-changes-graph";
 
 import styles from "./styles.module.scss";
 import { ResetContainer } from "./features/reset/containers";
@@ -18,12 +18,12 @@ export const HomePage: React.FC = () => {
         <div className={styles.usersWikisInfo}>
           <AllUsersStatsContainer />
           <AllWikisStatsContainer />
-          <SubscribedUserEditsGraphContainer />
+          <SubscribedUserChangesGraphContainer />
           <ResetContainer />
         </div>
-        <div className={styles.editsInfo}>
-          <SubscribedUserRecentEditsListContainer />
-          <AllRecentEditsListContainer />
+        <div className={styles.changesInfo}>
+          <SubscribedUserRecentChangesListContainer />
+          <AllRecentChangesListContainer />
         </div>
       </div>
     </PageComponent>

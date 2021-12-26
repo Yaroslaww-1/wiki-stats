@@ -1,5 +1,5 @@
 import httpApi from "../http-api.helper";
-import { IUserEditsStatsModel } from "./user-edits-stats.model";
+import { IUserChangesStatsModel } from "./user-changes-stats.model";
 
 import { IUsersStatsModel } from "./users-stats.model";
 
@@ -10,14 +10,14 @@ export class UsersApiService {
     return httpApi.get(`${endpoint}/stats`);
   }
 
-  static async subscribeForUserEdits({ userName }: { userName: string }): Promise<void> {
+  static async subscribeForUserChanges({ userName }: { userName: string }): Promise<void> {
     return httpApi.post(`${endpoint}/${userName}/subscribe`, {});
   }
 
-  static async getUserEditsStats(
+  static async getUserChangesStats(
     { userName, window, step }: { userName: string; window: number, step: number },
-  ): Promise<IUserEditsStatsModel> {
-    const stats = await httpApi.get<IUserEditsStatsModel>(`${endpoint}/${userName}/stats`, { window, step });
+  ): Promise<IUserChangesStatsModel> {
+    const stats = await httpApi.get<IUserChangesStatsModel>(`${endpoint}/${userName}/stats`, { window, step });
 
     stats.parts = stats.parts.map(part => {
       const endTimestamp = new Date(part.endTimestamp);

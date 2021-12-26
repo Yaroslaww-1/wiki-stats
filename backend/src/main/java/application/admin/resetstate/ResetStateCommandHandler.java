@@ -1,8 +1,8 @@
 package application.admin.resetstate;
 
 import application.contracts.ICommandHandler;
-import application.edits.IEditsProcessingDelayManager;
-import application.users.IEditsSubscriptionManager;
+import application.changes.IChangesProcessingDelayManager;
+import application.users.IChangesSubscriptionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -11,22 +11,22 @@ import java.time.Duration;
 
 @Component
 public class ResetStateCommandHandler implements ICommandHandler<ResetStateCommand, Void> {
-    private final IEditsProcessingDelayManager editsProcessingDelayManager;
-    private final IEditsSubscriptionManager editsSubscriptionManager;
+    private final IChangesProcessingDelayManager changesProcessingDelayManager;
+    private final IChangesSubscriptionManager changesSubscriptionManager;
 
     @Autowired
     public ResetStateCommandHandler(
-            IEditsProcessingDelayManager editsProcessingDelayManager,
-            IEditsSubscriptionManager editsSubscriptionManager
+            IChangesProcessingDelayManager changesProcessingDelayManager,
+            IChangesSubscriptionManager changesSubscriptionManager
     ) {
-        this.editsProcessingDelayManager = editsProcessingDelayManager;
-        this.editsSubscriptionManager = editsSubscriptionManager;
+        this.changesProcessingDelayManager = changesProcessingDelayManager;
+        this.changesSubscriptionManager = changesSubscriptionManager;
     }
 
     @Override
     public Mono<Void> execute(ResetStateCommand command) {
-        editsProcessingDelayManager.setDelay(Duration.ZERO);
-        editsSubscriptionManager.unsubscribeAll();
+        changesProcessingDelayManager.setDelay(Duration.ZERO);
+        changesSubscriptionManager.unsubscribeAll();
         return Mono.empty();
     }
 }

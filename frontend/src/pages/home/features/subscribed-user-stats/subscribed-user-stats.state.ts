@@ -1,91 +1,91 @@
 import { makeAutoObservable } from "mobx";
 
 import wsApiHelper from "@api/ws-api.helper";
-import { IEditModel } from "@api/edits/edit.model";
-import { SUBSCRIBED_USER_EDIT_CREATED_EVENT_TYPE, ISubscribedUserEditCreatedEvent } from "@api/users/subscribed-user-edit-created.event";
-import { IUserEditsStatsPartModel } from "@api/users/user-edits-stats.model";
+import { IChangeModel } from "@api/changes/change.model";
+import { SUBSCRIBED_USER_CHANGE_CREATED_EVENT_TYPE, ISubscribedUserChangeCreatedEvent } from "@api/users/subscribed-user-change-created.event";
+import { IUserChangesStatsPartModel } from "@api/users/user-changes-stats.model";
 import { UsersApiService } from "@api/users/users-api.service";
-import { USER_EDITS_STATS_CHANGED_EVENT_TYPE, IUserEditsStatsChangedEvent } from "@api/users/user-edits-stats-changed.event";
+import { USER_CHANGES_STATS_CHANGED_EVENT_TYPE, IUserChangesStatsChangedEvent } from "@api/users/user-changes-stats-changed.event";
 
 export class SubscribedUserStatsState {
-  recentEdits: IEditModel[] = [];
-  keepEdits = 10;
+  recentChanges: IChangeModel[] = [];
+  keepChanges = 10;
   subscribedUserName: string = "";
-  subscribedUserEditsStatsParts: IUserEditsStatsPartModel[] = [];
-  editsStatsWindow: number = 60;
-  editsStatsStep: number = 1;
+  subscribedUserChangesStatsParts: IUserChangesStatsPartModel[] = [];
+  changesStatsWindow: number = 60;
+  changesStatsStep: number = 1;
 
   constructor() {
     makeAutoObservable(this, {}, { deep: true });
 
-    this.setKeepEdits = this.setKeepEdits.bind(this);
-    this.subscribeForUserEdits = this.subscribeForUserEdits.bind(this);
-    this.setEditStatsWindow = this.setEditStatsWindow.bind(this);
+    this.setKeepChanges = this.setKeepChanges.bind(this);
+    this.subscribeForUserChanges = this.subscribeForUserChanges.bind(this);
+    this.setChangeStatsWindow = this.setChangeStatsWindow.bind(this);
 
-    this.processEditCreatedEvent = this.processEditCreatedEvent.bind(this);
-    wsApiHelper.subscribe(SUBSCRIBED_USER_EDIT_CREATED_EVENT_TYPE, this.processEditCreatedEvent);
+    this.processChangeCreatedEvent = this.processChangeCreatedEvent.bind(this);
+    wsApiHelper.subscribe(SUBSCRIBED_USER_CHANGE_CREATED_EVENT_TYPE, this.processChangeCreatedEvent);
 
-    this.processUserEditsStatsCreatedEvent = this.processUserEditsStatsCreatedEvent.bind(this);
-    wsApiHelper.subscribe(USER_EDITS_STATS_CHANGED_EVENT_TYPE, this.processUserEditsStatsCreatedEvent);
+    this.processUserChangesStatsCreatedEvent = this.processUserChangesStatsCreatedEvent.bind(this);
+    wsApiHelper.subscribe(USER_CHANGES_STATS_CHANGED_EVENT_TYPE, this.processUserChangesStatsCreatedEvent);
   }
 
-  private async processEditCreatedEvent(event: ISubscribedUserEditCreatedEvent) {
-    this.recentEdits.push(event);
-    this.recentEdits = this.recentEdits.slice(-this.keepEdits);
+  private async processChangeCreatedEvent(event: ISubscribedUserChangeCreatedEvent) {
+    this.recentChanges.push(event);
+    this.recentChanges = this.recentChanges.slice(-this.keepChanges);
   };
 
-  private async processUserEditsStatsCreatedEvent(event: IUserEditsStatsChangedEvent) {
-    if (this.subscribedUserEditsStatsParts.length === 0) {
+  private async processUserChangesStatsCreatedEvent(event: IUserChangesStatsChangedEvent) {
+    if (this.subscribedUserChangesStatsParts.length === 0) {
       return;
     }
 
-    const lastEditStatsPart = this.subscribedUserEditsStatsParts[this.subscribedUserEditsStatsParts.length - 1];
+    const lastChangeStatsPart = this.subscribedUserChangesStatsParts[this.subscribedUserChangesStatsParts.length - 1];
     const eventStartTimestamp = new Date(event.startTimestamp);
 
-    if (lastEditStatsPart.endTimestamp >= eventStartTimestamp) {
+    if (lastChangeStatsPart.endTimestamp >= eventStartTimestamp) {
       // update last part
-      this.subscribedUserEditsStatsParts[this.subscribedUserEditsStatsParts.length - 1] = {
-        index: lastEditStatsPart.index,
-        edits: event.editCount,
+      this.subscribedUserChangesStatsParts[this.subscribedUserChangesStatsParts.length - 1] = {
+        index: lastChangeStatsPart.index,
+        changes: event.changesCount,
         durationInMinutes: event.durationInMinutes,
-        endTimestamp: lastEditStatsPart.endTimestamp,
+        endTimestamp: lastChangeStatsPart.endTimestamp,
       };
-      this.subscribedUserEditsStatsParts = this.subscribedUserEditsStatsParts.slice(0); //TODO: replace by deepCopy?
+      this.subscribedUserChangesStatsParts = this.subscribedUserChangesStatsParts.slice(0); //TODO: replace by deepCopy?
     } else {
       // add new part
-      this.subscribedUserEditsStatsParts.push({
-        index: lastEditStatsPart.index + 1,
-        edits: event.editCount,
+      this.subscribedUserChangesStatsParts.push({
+        index: lastChangeStatsPart.index + 1,
+        changes: event.changesCount,
         durationInMinutes: event.durationInMinutes,
         endTimestamp: new Date(
           eventStartTimestamp.setMinutes(eventStartTimestamp.getMinutes() + event.durationInMinutes),
         ),
       });
-      this.subscribedUserEditsStatsParts = this.subscribedUserEditsStatsParts.slice(-this.editsStatsWindow);
+      this.subscribedUserChangesStatsParts = this.subscribedUserChangesStatsParts.slice(-this.changesStatsWindow);
     }
   };
 
-  public setKeepEdits(keepEdits: number) {
-    this.keepEdits = keepEdits;
+  public setKeepChanges(keepChanges: number) {
+    this.keepChanges = keepChanges;
   }
 
-  public async setEditStatsWindow(window: number, step: number) {
-    this.editsStatsWindow = window;
-    this.editsStatsStep = step;
-    this.subscribedUserEditsStatsParts = (await UsersApiService.getUserEditsStats({
+  public async setChangeStatsWindow(window: number, step: number) {
+    this.changesStatsWindow = window;
+    this.changesStatsStep = step;
+    this.subscribedUserChangesStatsParts = (await UsersApiService.getUserChangesStats({
       userName: this.subscribedUserName,
-      window: this.editsStatsWindow,
-      step: this.editsStatsStep,
+      window: this.changesStatsWindow,
+      step: this.changesStatsStep,
     })).parts;
   }
 
-  public async subscribeForUserEdits(userName: string) {
+  public async subscribeForUserChanges(userName: string) {
     this.subscribedUserName = userName;
-    await UsersApiService.subscribeForUserEdits({ userName: this.subscribedUserName });
-    this.subscribedUserEditsStatsParts = (await UsersApiService.getUserEditsStats({
+    await UsersApiService.subscribeForUserChanges({ userName: this.subscribedUserName });
+    this.subscribedUserChangesStatsParts = (await UsersApiService.getUserChangesStats({
       userName: this.subscribedUserName,
-      window: this.editsStatsWindow,
-      step: this.editsStatsStep,
+      window: this.changesStatsWindow,
+      step: this.changesStatsStep,
     })).parts;
   }
 }
