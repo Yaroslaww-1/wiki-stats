@@ -90,7 +90,7 @@ public class GetUserEditsStatsQueryHandler implements IQueryHandler<GetUserEdits
                     (long)windowedEditsStats.size(),
                     editsCountInWindow,
                     stepInMinutes,
-                    windowEnd)
+                    windowEnd.toString())
             );
 
             windowStart = windowStart.plusMinutes(stepInMinutes);

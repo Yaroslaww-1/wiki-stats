@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, CartesianGrid, Tooltip } from "recharts";
 
 import { IUserEditsStatsPartModel } from "@api/users/user-edits-stats.model";
@@ -51,11 +51,12 @@ export const EditsGraphComponent: React.FC<IProps> = ({
         height={400}
         data={userEditStats}
         margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+        key={userEditStats[userEditStats.length - 1]?.edits}
       >
         <XAxis dataKey="index" />
         <Tooltip />
         <CartesianGrid stroke="#f5f5f5" />
-        <Line type="monotone" dataKey="edits" stroke="#ff7300" yAxisId={0} />
+        <Line type="monotone" dataKey="edits" stroke="#ff7300" yAxisId={0} isAnimationActive={false} />
       </LineChart>
     </div>
   );

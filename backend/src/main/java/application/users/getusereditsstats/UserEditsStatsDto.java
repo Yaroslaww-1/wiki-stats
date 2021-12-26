@@ -9,7 +9,7 @@ record UserEditsStatsPart(
         Long index,
         Long edits,
         Long durationInMinutes,
-        LocalDateTime endTimestamp
+        String endTimestamp
 ) {}
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)

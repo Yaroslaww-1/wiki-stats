@@ -17,6 +17,17 @@ export class UsersApiService {
   static async getUserEditsStats(
     { userName, window, step }: { userName: string; window: number, step: number },
   ): Promise<IUserEditsStatsModel> {
-    return httpApi.get(`${endpoint}/${userName}/stats`, { window, step });
+    const stats = await httpApi.get<IUserEditsStatsModel>(`${endpoint}/${userName}/stats`, { window, step });
+
+    stats.parts = stats.parts.map(part => {
+      const endTimestamp = new Date(part.endTimestamp);
+
+      return {
+        ...part,
+        endTimestamp,
+      };
+    });
+
+    return stats;
   }
 }
