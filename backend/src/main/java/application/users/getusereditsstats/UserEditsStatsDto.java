@@ -2,14 +2,14 @@ package application.users.getusereditsstats;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 record UserEditsStatsPart(
         Long index,
         Long edits,
-        Long durationInDays,
-        Integer endYear,
-        Integer endDay
+        Long durationInMinutes,
+        LocalDateTime endTimestamp
 ) {}
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { LineChart, Line, XAxis, CartesianGrid, Tooltip } from "recharts";
 
 import { IUserEditsStatsPartModel } from "@api/users/user-edits-stats.model";
@@ -7,22 +7,45 @@ import styles from "./styles.module.scss";
 
 interface IProps {
   userEditStats?: IUserEditsStatsPartModel[];
-  window: number;
-  setWindow: (window: number) => void;
+  initialWindow: number;
+  initialStep: number;
+  setOptions: (window: number, step: number) => void;
 }
 
 export const EditsGraphComponent: React.FC<IProps> = ({
   userEditStats = [],
-  window,
-  setWindow,
+  initialWindow,
+  initialStep,
+  setOptions,
 }) => {
+  const [window, setWindow] = useState(initialWindow);
+  const [step, setStep] = useState(initialStep);
+
   const onWindowValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setWindow(parseInt(event.target.value) || 10);
+    setWindow(parseInt(event.target.value) || 60);
+  };
+
+  const onStepValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setStep(parseInt(event.target.value) || 1);
+  };
+
+  const onClick = () => {
+    setOptions(window, step);
   };
 
   return (
     <div className={styles.root}>
-      <input value={window} onChange={onWindowValueChange}></input>
+      <div className={styles.controls}>
+        <div className={styles.control}>
+          Window in minutes:
+          <input value={window} onChange={onWindowValueChange}></input>
+        </div>
+        <div className={styles.control}>
+          Step in minutes:
+          <input value={step} onChange={onStepValueChange}></input>
+        </div>
+        <button onClick={onClick}>Apply</button>
+      </div>
       <LineChart
         width={400}
         height={400}

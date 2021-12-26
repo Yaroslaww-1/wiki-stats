@@ -29,15 +29,15 @@ public class UserEditStatsEntityRepository implements IUserEditStatsEntityReposi
     @Override
     public Mono<UserEditStats> getOne(Query query) {
         return connection.template.select(UserEditStatsEntity.class)
-                .matching(query)
-                .one()
+                .matching(query.sort(Sort.by("start_timestamp").descending()))
+                .first()
                 .map(this::mapEntityToDomain);
     }
 
     @Override
     public Flux<UserEditStats> getAll(Query query) {
         return connection.template.select(UserEditStatsEntity.class)
-                .matching(query.sort(Sort.by("year", "day")))
+                .matching(query.sort(Sort.by("start_timestamp").descending()))
                 .all()
                 .map(this::mapEntityToDomain);
     }
@@ -55,8 +55,8 @@ public class UserEditStatsEntityRepository implements IUserEditStatsEntityReposi
                 .matching(query(where("id").is(userEditStats.getId())))
                 .apply(
                         Update
-                                .update("day", userEditStats.getDay())
-                                .set("year", userEditStats.getYear())
+                                .update("start_timestamp", userEditStats.getStartTimestamp())
+                                .set("duration_in_minutes", userEditStats.getDurationInMinutes())
                                 .set("add_count", userEditStats.getAddCount())
                                 .set("edit_count", userEditStats.getEditCount())
                                 .set("user_id", userEditStats.getUserId())
@@ -67,8 +67,8 @@ public class UserEditStatsEntityRepository implements IUserEditStatsEntityReposi
     private UserEditStats mapEntityToDomain(UserEditStatsEntity userEditStatsEntity) {
         return new UserEditStats(
                 userEditStatsEntity.id(),
-                userEditStatsEntity.day(),
-                userEditStatsEntity.year(),
+                userEditStatsEntity.startTimestamp(),
+                userEditStatsEntity.durationInMinutes(),
                 userEditStatsEntity.addCount(),
                 userEditStatsEntity.editCount(),
                 userEditStatsEntity.userId()
@@ -78,8 +78,8 @@ public class UserEditStatsEntityRepository implements IUserEditStatsEntityReposi
     private UserEditStatsEntity mapDomainToEntity(UserEditStats userEditStats) {
         return new UserEditStatsEntity(
                 userEditStats.getId(),
-                userEditStats.getDay(),
-                userEditStats.getYear(),
+                userEditStats.getStartTimestamp(),
+                userEditStats.getDurationInMinutes(),
                 userEditStats.getAddCount(),
                 userEditStats.getEditCount(),
                 userEditStats.getUserId()

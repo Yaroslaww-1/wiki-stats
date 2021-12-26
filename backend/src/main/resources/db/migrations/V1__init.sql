@@ -28,8 +28,8 @@ CREATE TABLE edits
 CREATE TABLE user_edit_stats
 (
     id VARCHAR(63) NOT NULL,
-    day INTEGER NOT NULL,
-    year INTEGER NOT NULL,
+    start_timestamp TIMESTAMP NOT NULL,
+    duration_in_minutes INTEGER NOT NULL,
     add_count INTEGER NOT NULL,
     edit_count INTEGER NOT NULL,
     user_id VARCHAR(63) NOT NULL REFERENCES users (id) ON UPDATE CASCADE,

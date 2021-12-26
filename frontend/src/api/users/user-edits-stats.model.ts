@@ -1,9 +1,8 @@
 export interface IUserEditsStatsPartModel {
   index: number;
   edits: number;
-  durationInDays: number;
-  endYear: number;
-  endDay: number;
+  durationInMinutes: number;
+  endTimestamp: Date;
 }
 
 export interface IUserEditsStatsModel {

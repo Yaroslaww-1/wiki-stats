@@ -11,13 +11,15 @@ export class SubscribedUserStatsState {
   keepEdits = 10;
   subscribedUserName: string = "";
   subscribedUserEditsStats: IUserEditsStatsModel | null = null;
-  editsStatsWindow: number = 10;
+  editsStatsWindow: number = 60;
+  editsStatsStep: number = 1;
 
   constructor() {
     makeAutoObservable(this);
 
     this.setKeepEdits = this.setKeepEdits.bind(this);
     this.subscribeForUserEdits = this.subscribeForUserEdits.bind(this);
+    this.setEditStatsWindow = this.setEditStatsWindow.bind(this);
 
     this.processEditCreatedEvent = this.processEditCreatedEvent.bind(this);
     wsApiHelper.subscribe(SUBSCRIBED_USER_EDIT_CREATED_EVENT_TYPE, this.processEditCreatedEvent);
@@ -32,11 +34,13 @@ export class SubscribedUserStatsState {
     this.keepEdits = keepEdits;
   }
 
-  public async setEditStatsWindow(window: number) {
+  public async setEditStatsWindow(window: number, step: number) {
     this.editsStatsWindow = window;
+    this.editsStatsStep = step;
     this.subscribedUserEditsStats = await UsersApiService.getUserEditsStats({
       userName: this.subscribedUserName,
       window: this.editsStatsWindow,
+      step: this.editsStatsStep,
     });
   }
 
@@ -46,6 +50,7 @@ export class SubscribedUserStatsState {
     this.subscribedUserEditsStats = await UsersApiService.getUserEditsStats({
       userName: this.subscribedUserName,
       window: this.editsStatsWindow,
+      step: this.editsStatsStep,
     });
   }
 }

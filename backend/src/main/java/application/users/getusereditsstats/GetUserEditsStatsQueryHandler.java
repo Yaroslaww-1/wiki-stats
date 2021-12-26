@@ -43,10 +43,14 @@ public class GetUserEditsStatsQueryHandler implements IQueryHandler<GetUserEdits
                 .flatMap(user -> userEditStatsEntityRepository
                         .getAll(
                                 query(where("user_id").is(user.getId()))
-                                        .limit(365)
+                                        .limit(query.windowDurationInMinutes().intValue())
                         )
                         .collectList()
-                        .map(existingEditStats -> this.getWindowedEditsStats(existingEditStats, query.windowDurationInDays()))
+                        .map(existingEditStats -> this.getWindowedEditsStats(
+                                existingEditStats,
+                                query.stepInMinutes(),
+                                query.windowDurationInMinutes()
+                        ))
                 )
                 .map(UserEditsStatsDto::new);
 
@@ -59,18 +63,20 @@ public class GetUserEditsStatsQueryHandler implements IQueryHandler<GetUserEdits
                 .delayUntil(userEventsRealtimeNotifier::notifyUserCreated);
     }
 
-    private List<UserEditsStatsPart> getWindowedEditsStats(List<UserEditStats> existingEditStats, Long windowDurationInDays) {
-        var windowStart = LocalDateTime.now().minusYears(1);
+    private List<UserEditsStatsPart> getWindowedEditsStats(
+            List<UserEditStats> existingEditStats,
+            Long stepInMinutes,
+            Long windowInMinutes
+    ) {
+        var windowStart = LocalDateTime.now().minusMinutes(windowInMinutes);
         var windowedEditsStats = new ArrayList<UserEditsStatsPart>();
 
         while (windowStart.isBefore(LocalDateTime.now())) {
             var editsCountInWindow = 0L;
-            var windowEnd = windowStart.plusDays(windowDurationInDays);
+            var windowEnd = windowStart.plusMinutes(stepInMinutes);
 
             for (var editStats : existingEditStats) {
-                var editStatsDate = LocalDateTime.of(0, 1, 1, 0, 0)
-                        .plusYears(editStats.getYear())
-                        .plusDays(editStats.getDay());
+                var editStatsDate = editStats.getStartTimestamp();
                 if (
                     (editStatsDate.isAfter(windowStart) && editStatsDate.isBefore(windowEnd)) ||
                     editStatsDate.equals(windowStart) ||
@@ -83,91 +89,13 @@ public class GetUserEditsStatsQueryHandler implements IQueryHandler<GetUserEdits
             windowedEditsStats.add(new UserEditsStatsPart(
                     (long)windowedEditsStats.size(),
                     editsCountInWindow,
-                    windowDurationInDays,
-                    windowEnd.getYear(),
-                    windowEnd.getDayOfYear())
+                    stepInMinutes,
+                    windowEnd)
             );
 
-            windowStart = windowStart.plusDays(windowDurationInDays);
+            windowStart = windowStart.plusMinutes(stepInMinutes);
         }
 
         return windowedEditsStats;
     }
-
-//    private List<UserEditsStatsPart> getWindowedEditsStats(List<UserEditStats> existingEditStats, Long windowDurationInDays) {
-//        var windowStart = LocalDateTime.now().minusYears(1);
-//        var windowedEditsStats = new ArrayList<UserEditsStatsPart>();
-//        var index = 0L;
-//
-//
-//        while (windowStart.isBefore(LocalDateTime.now())) {
-////            var existingDataInWindow = new ArrayList<UserEditStats>();
-//            var editsCountInWindow = 0L;
-//            var windowEnd = windowStart.plusDays(windowDurationInDays);
-//
-//            for (var editStats : existingEditStats) {
-//                var editStatsDate = LocalDateTime.of(0, 0, 0, 0, 0)
-//                        .plusYears(editStats.getYear())
-//                        .plusDays(editStats.getDay());
-////                var isYearInWindow = (windowStart.getYear() <= data.getYear() && data.getYear() <= windowEnd.getYear());
-////                var isDayInWindow = (
-////                        windowStart.getDayOfYear() <= data.getDay() &&
-////                        data.getDay() <= windowEnd.getDayOfYear() &&
-////
-////                        );
-////                if (data.getYear())
-//                if (
-//                        (editStatsDate.isAfter(windowStart) && editStatsDate.isBefore(windowEnd)) ||
-//                                editStatsDate.equals(windowStart) ||
-//                                editStatsDate.equals(windowEnd)
-//                ) {
-//                    editsCountInWindow += editStats.getEditCount();
-////                    existingDataInWindow.add(editStats);
-//                }
-//            }
-//
-//            windowedEditsStats.add(new UserEditsStatsPart(
-//                    index,
-//                    editsCountInWindow,
-//                    windowDurationInDays,
-//                    windowEnd.getYear(),
-//                    windowEnd.getDayOfYear())
-//            );
-//
-////            if (existingDataInWindow.isEmpty()) {
-////                windowedEditsStats.add(new UserEditsStatsPart(
-////                        index,
-////                        0L,
-////                        windowDurationInDays,
-////                        windowEnd.getYear(),
-////                        windowEnd.getDayOfYear())
-////                );
-////            } else {
-////                var edi
-////                windowedEditsStats.add(new UserEditsStatsPart(
-////                        index,
-////                        0L,
-////                        windowDurationInDays,
-////                        windowEnd.getYear(),
-////                        windowEnd.getDayOfYear())
-////                );
-////            }
-//
-//            windowStart = windowStart.plusDays(windowDurationInDays);
-//            index++;
-//        }
-//
-//        return windowedEditsStats;
-//
-////        for (var a : existingData) {
-////            while (currentCheckDate.getDayOfYear() != a.getDay() && currentCheckDate.getYear() != a.getYear()) {
-////                editsStatsWithMissingData.add(new UserEditsStatsPart(
-////                      index, 0L, windowDurationInDays, true
-////                ))
-////                currentCheckDate = currentCheckDate.plusDays(1);
-////            }
-////        }
-////
-////        return editsStatsWithMissingData;
-//    }
 }

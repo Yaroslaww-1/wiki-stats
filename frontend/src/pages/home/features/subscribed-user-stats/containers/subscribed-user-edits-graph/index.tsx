@@ -12,8 +12,9 @@ const SubscribedUserEditsGraphContainerInner: React.FC<IProps> = observer(({ sta
   return (
     <EditsGraphComponent
       userEditStats={state.subscribedUserEditsStats?.parts}
-      window={state.editsStatsWindow}
-      setWindow={state.setEditStatsWindow}
+      initialWindow={state.editsStatsWindow}
+      initialStep={state.editsStatsStep}
+      setOptions={state.setEditStatsWindow}
     />
   );
 });

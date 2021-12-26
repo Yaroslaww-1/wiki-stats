@@ -133,12 +133,17 @@ public class AddEditCommandHandler implements ICommandHandler<AddEditCommand, Ed
     }
 
     private Mono<UserEditStats> createOrUpdateUserEditStats(Edit edit) {
+        var windowInMinutes = 1L;
+
         return userEditStatsEntityRepository
                 .getOne(
                         query(where("user_id").is(edit.getEditor().getId()))
                 )
+                .filter(userEditStats ->
+                        userEditStats.getStartTimestamp().plusMinutes(windowInMinutes).isAfter(LocalDateTime.now())
+                )
                 .switchIfEmpty(userEditStatsEntityRepository.add(
-                        new UserEditStats(edit.getEditor().getId())
+                        new UserEditStats(edit.getEditor().getId(), windowInMinutes)
                 ))
                 .delayUntil(userEditStats -> {
                     if (edit.isEdit()) {

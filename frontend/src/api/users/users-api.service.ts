@@ -15,8 +15,8 @@ export class UsersApiService {
   }
 
   static async getUserEditsStats(
-    { userName, window }: { userName: string; window: number },
+    { userName, window, step }: { userName: string; window: number, step: number },
   ): Promise<IUserEditsStatsModel> {
-    return httpApi.get(`${endpoint}/${userName}/stats`, { window });
+    return httpApi.get(`${endpoint}/${userName}/stats`, { window, step });
   }
 }

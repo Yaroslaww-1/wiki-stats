@@ -63,8 +63,8 @@ public class EditEventsRealtimeNotifier implements IEditEventsRealtimeNotifier {
     @Override
     public Mono<Void> notifyEditStatsChanged(UserEditStats userEditStats) {
         var eventPayload = new EditStatsChangedEventPayload(
-                userEditStats.getDay(),
-                userEditStats.getYear(),
+                userEditStats.getStartTimestamp(),
+                userEditStats.getDurationInMinutes(),
                 userEditStats.getAddCount(),
                 userEditStats.getEditCount(),
                 userEditStats.getUserId()

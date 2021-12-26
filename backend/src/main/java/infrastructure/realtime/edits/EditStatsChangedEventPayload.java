@@ -1,8 +1,10 @@
 package infrastructure.realtime.edits;
 
+import java.time.LocalDateTime;
+
 public record EditStatsChangedEventPayload(
-        Integer day,
-        Integer year,
+        LocalDateTime startTimestamp,
+        Long durationInMinutes,
         Long addCount,
         Long editCount,
         String userId

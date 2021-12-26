@@ -62,9 +62,10 @@ public class UsersController {
     @GetMapping("{userName}/stats")
     private Mono<UserEditsStatsDto> getUserEditsStats(
             @PathVariable String userName,
-            @RequestParam Long window
+            @RequestParam Long window,
+            @RequestParam Long step
     ) {
-        var query = new GetUserEditsStatsQuery(userName, window);
+        var query = new GetUserEditsStatsQuery(userName, window, step);
         return getUserEditsStatsQueryHandler.execute(query);
     }
 }

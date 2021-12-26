@@ -5,34 +5,35 @@ import java.util.UUID;
 
 public class UserEditStats {
     private String id;
-    private Integer day;
-    private Integer year;
+    private LocalDateTime startTimestamp;
+    private Long durationInMinutes;
     private Long addCount;
     private Long editCount;
     private String userId;
 
     public UserEditStats(
             String id,
-            Integer day,
-            Integer year,
+            LocalDateTime startTimestamp,
+            Long durationInMinutes,
             Long addCount,
             Long editCount,
             String userId
     ) {
         this.id = id;
-        this.day = day;
-        this.year = year;
+        this.startTimestamp = startTimestamp;
+        this.durationInMinutes = durationInMinutes;
         this.addCount = addCount;
         this.editCount = editCount;
         this.userId = userId;
     }
 
     public UserEditStats(
-            String userId
+            String userId,
+            Long durationInMinutes
     ) {
         this.id = UUID.randomUUID().toString();
-        this.day = LocalDateTime.now().getDayOfYear();
-        this.year = LocalDateTime.now().getYear();
+        this.startTimestamp = LocalDateTime.now();
+        this.durationInMinutes = durationInMinutes;
         this.addCount = 0L;
         this.editCount = 0L;
         this.userId = userId;
@@ -47,8 +48,8 @@ public class UserEditStats {
     }
 
     public String getId() { return this.id; }
-    public Integer getDay() { return this.day; }
-    public Integer getYear() { return this.year; }
+    public LocalDateTime getStartTimestamp() { return this.startTimestamp; }
+    public Long getDurationInMinutes() { return this.durationInMinutes; }
     public Long getAddCount() { return this.addCount; }
     public Long getEditCount() { return this.editCount; }
     public String getUserId() { return this.userId; }
