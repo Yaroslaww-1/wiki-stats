@@ -1,0 +1,15 @@
+.root {
+  display: flex;
+  flex-direction: row;
+
+  padding: 15px 15px;
+  width: fit-content;
+  height: fit-content;
+
+  border: 2px solid lightblue;
+  border-radius: 2px;
+
+  div {
+    margin-right: 10px;
+  }
+}

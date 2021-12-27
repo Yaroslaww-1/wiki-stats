@@ -11,16 +11,22 @@ import { SubscribedUserChangesGraphContainer } from "./features/subscribed-user-
 import styles from "./styles.module.scss";
 import { ResetContainer } from "./features/reset/containers";
 import { TopWikisByChangesContainer } from "./features/subscribed-user-stats/containers/top-wikis-by-changes";
+import { SubscribedUserChangesAggregateStatsContainer } from "./features/subscribed-user-stats/containers/subscribed-user-chages-aggregate-stats";
 
 export const HomePage: React.FC = () => {
   return (
     <PageComponent>
       <div className={styles.root}>
         <div className={styles.usersWikisInfo}>
-          <AllUsersStatsContainer />
-          <AllWikisStatsContainer />
+          <div className={styles.usersWikisStats}>
+            <AllUsersStatsContainer />
+            <AllWikisStatsContainer />
+            <div className={styles.reset}>
+              <ResetContainer />
+            </div>
+          </div>
           <SubscribedUserChangesGraphContainer />
-          <ResetContainer />
+          <SubscribedUserChangesAggregateStatsContainer />
           <TopWikisByChangesContainer />
         </div>
         <div className={styles.changesInfo}>

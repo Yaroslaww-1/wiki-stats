@@ -3,7 +3,7 @@ import { makeAutoObservable } from "mobx";
 import { UsersApiService } from "@api/users/users-api.service";
 import { IUserModel } from "@api/users/user.model";
 import wsApiHelper from "@api/ws-api.helper";
-import { IUserCreatedEvent, USER_CREATED_EVENT_TYPE } from "@api/users/user-created.event";
+import { IUserCreatedEvent, USER_CREATED_EVENT_TYPE } from "@api/users/events/user-created.event";
 
 export class AllUsersStatsState {
   totalUsersCount: number = 0;

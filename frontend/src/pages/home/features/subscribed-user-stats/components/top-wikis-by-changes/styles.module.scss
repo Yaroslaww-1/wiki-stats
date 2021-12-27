@@ -2,10 +2,16 @@
   display: flex;
   flex-direction: column;
 
+  padding: 15px 15px;
+  width: 50%;
+
+  border: 2px solid lightblue;
+  border-radius: 2px;
+
   table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
-    width: 60%;
+    width: 100%;
   }
   
   td, th {

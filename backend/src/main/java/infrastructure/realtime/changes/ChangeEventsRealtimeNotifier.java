@@ -3,6 +3,7 @@ package infrastructure.realtime.changes;
 import application.changes.IChangeEventsRealtimeNotifier;
 import application.changes.UserWikiChangeStatsOrdered;
 import domain.change.Change;
+import domain.user.UserChangeAggregateStats;
 import domain.user.UserChangeStats;
 import domain.user.UserWikiChangeStats;
 import infrastructure.realtime.Event;
@@ -74,6 +75,19 @@ public class ChangeEventsRealtimeNotifier implements IChangeEventsRealtimeNotifi
         );
 
         realtimeNotifier.sendEvent(new Event("UserChangeStatsChanged", eventPayload));
+
+        return Mono.empty();
+    }
+
+    @Override
+    public Mono<Void> notifyUserChangeAggregateStatsChanged(UserChangeAggregateStats userChangeAggregateStats) {
+        var eventPayload = new UserChangeAggregateStatsChangedEventPayload(
+                userChangeAggregateStats.getUserId(),
+                userChangeAggregateStats.getAddCount(),
+                userChangeAggregateStats.getEditCount()
+        );
+
+        realtimeNotifier.sendEvent(new Event("UserChangeAggregateStatsChanged", eventPayload));
 
         return Mono.empty();
     }

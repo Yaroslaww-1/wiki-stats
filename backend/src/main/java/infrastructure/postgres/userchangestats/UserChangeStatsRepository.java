@@ -1,4 +1,4 @@
-package infrastructure.postgres.userchangesstats;
+package infrastructure.postgres.userchangestats;
 
 import application.users.IUserChangeStatsRepository;
 import domain.user.UserChangeStats;

@@ -2,14 +2,12 @@ package application.changes.addchange;
 
 import application.changes.*;
 import application.contracts.ICommandHandler;
-import application.users.IChangesSubscriptionManager;
-import application.users.IUserChangeStatsRepository;
-import application.users.IUserEventsRealtimeNotifier;
+import application.users.*;
 import application.wikis.IWikiEventsRealtimeNotifier;
 import domain.change.Change;
-import application.users.IUserRepository;
 import domain.user.User;
 import application.wikis.IWikiRepository;
+import domain.user.UserChangeAggregateStats;
 import domain.user.UserChangeStats;
 import domain.user.UserWikiChangeStats;
 import domain.wiki.Wiki;
@@ -36,6 +34,7 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
     private final IChangesSubscriptionManager changesSubscriptionManager;
     private final IUserWikiChangeStatsRepository userWikiChangeStatsRepository;
     private final IUserWikiChangeStatsOrderedRepository userWikiChangeStatsOrderedRepository;
+    private final IUserChangeAggregateStatsRepository userChangeAggregateStatsRepository;
 
     @Autowired
     public AddChangeCommandHandler(
@@ -48,7 +47,8 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
             IChangeEventsRealtimeNotifier changeEventsRealtimeNotifier,
             IChangesSubscriptionManager changesSubscriptionManager,
             IUserWikiChangeStatsRepository userWikiChangeStatsRepository,
-            IUserWikiChangeStatsOrderedRepository userWikiChangeStatsOrderedRepository
+            IUserWikiChangeStatsOrderedRepository userWikiChangeStatsOrderedRepository,
+            IUserChangeAggregateStatsRepository userChangeAggregateStatsRepository
     ) {
         this.userRepository = userRepository;
         this.wikiRepository = wikiRepository;
@@ -60,6 +60,7 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
         this.changesSubscriptionManager = changesSubscriptionManager;
         this.userWikiChangeStatsRepository = userWikiChangeStatsRepository;
         this.userWikiChangeStatsOrderedRepository = userWikiChangeStatsOrderedRepository;
+        this.userChangeAggregateStatsRepository = userChangeAggregateStatsRepository;
     }
 
     @Override
@@ -86,7 +87,8 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
                         command.type()
                 ))
                 .delayUntil(this::createOrUpdateUserChangeStats)
-                .delayUntil(this::createOrUpdateUserWikiChangeStats);
+                .delayUntil(this::createOrUpdateUserWikiChangeStats)
+                .delayUntil(this::updateUserChangeAggregateStats);
     }
 
     /**
@@ -124,6 +126,9 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
         return Mono
                 .just(new User(editor, isBot))
                 .delayUntil(userRepository::add)
+                .delayUntil(user -> userChangeAggregateStatsRepository.add(
+                        new UserChangeAggregateStats(user.getId())
+                ))
                 .delayUntil(userEventsRealtimeNotifier::notifyUserCreated);
     }
 
@@ -205,6 +210,28 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
                         change.getEditor().getId(),
                         statsList
                 ))
+                .then(Mono.empty());
+    }
+
+    private Mono<Void> updateUserChangeAggregateStats(Change change) {
+        return userChangeAggregateStatsRepository
+                .getOne(
+                        query(where("user_id").is(change.getEditor().getId()))
+                )
+                .delayUntil(userChangeAggregateStats -> {
+                    if (change.isEdit()) {
+                        userChangeAggregateStats.incrementEdits();
+                    }
+
+                    if (change.isAdd()) {
+                        userChangeAggregateStats.incrementAdds();
+                    }
+
+                    return Mono.just(userChangeAggregateStats);
+                })
+                .delayUntil(userChangeAggregateStatsRepository::update)
+                .filter(c -> changesSubscriptionManager.isSubscribedForUserChanges(c.getUserId()))
+                .delayUntil(changeEventsRealtimeNotifier::notifyUserChangeAggregateStatsChanged)
                 .then(Mono.empty());
     }
 }
