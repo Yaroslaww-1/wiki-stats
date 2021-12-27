@@ -1,6 +1,6 @@
 package infrastructure.realtime.wikis;
 
-import application.wikis.IWikiEventsRealtimeNotifier;
+import application.crud.wikis.IWikiEventsRealtimeNotifier;
 import domain.wiki.Wiki;
 import infrastructure.realtime.Event;
 import infrastructure.realtime.IRealtimeNotifier;

@@ -1,6 +1,6 @@
 package infrastructure.postgres.userchangestats;
 
-import application.users.IUserChangeStatsRepository;
+import application.crud.users.IUserChangeStatsRepository;
 import domain.user.UserChangeStats;
 import infrastructure.postgres.PostgresConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,28 +1,36 @@
 import { makeAutoObservable } from "mobx";
 
 import wsApiHelper from "@api/ws-api.helper";
-import { IChangeModel } from "@api/changes/change.model";
-import { SUBSCRIBED_USER_CHANGE_CREATED_EVENT_TYPE, ISubscribedUserChangeCreatedEvent } from "@api/users/events/subscribed-user-change-created.event";
 import { IUserChangesStatsPartModel } from "@api/users/user-changes-stats.model";
 import { UsersApiService } from "@api/users/users-api.service";
-import { USER_CHANGE_STATS_CHANGED_EVENT_TYPE, IUserChangeStatsChangedEvent } from "@api/users/events/user-change-stats-changed.event";
-import {
-  IUserChangesStatsChangedItemEvent,
-  IUserWikiChangesStatsChangedEvent,
-  USER_WIKI_CHANGES_STATS_CHANGED_EVENT_TYPE,
-} from "@api/users/events/user-wiki-changes-stats-changed.event";
-import { IUserChangeAggregateStatsChangedEvent, USER_CHANGE_AGGREGATE_STATS_CHANGED_EVENT_TYPE } from "@api/users/events/user-change-aggregate-stats-changed.event";
 import { AdminApiService } from "@api/admin/admin-api.service";
+import {
+  ISubscribedUserTopWikiChangedEvent,
+  ISubscribedUserTopWikiChangedEventWiki,
+  SUBSCRIBED_USER_TOP_WIKI_CHANGED_EVENT_TYPE,
+} from "@api/subscribed-user/subscribed-user-top-wiki-changed.event";
+import {
+  ISubscribedUserAggregateStatsChangedEvent,
+  SUBSCRIBED_USER_AGGREGATE_STATS_CHANGED_EVENT_TYPE,
+} from "@api/subscribed-user/subscribed-user-aggregate-stats-changed.event";
+import {
+  ISubscribedUserChangeCreatedEvent,
+  SUBSCRIBED_USER_CHANGE_CREATED_EVENT_TYPE,
+} from "@api/subscribed-user/subscribed-user-change-created.event";
+import {
+  ISubscribedUserStatsChangedEvent,
+  SUBSCRIBED_USER_STATS_CHANGED_EVENT_TYPE,
+} from "@api/subscribed-user/subscribed-user-stats-changed.event";
 
 export class SubscribedUserStatsState {
-  recentChanges: IChangeModel[] = [];
+  recentChanges: ISubscribedUserChangeCreatedEvent[] = [];
   keepChanges = 10;
   subscribedUserName: string = "";
-  subscribedUserChangesStatsParts: IUserChangesStatsPartModel[] = [];
+  subscribedUserStatsParts: IUserChangesStatsPartModel[] = [];
   changesStatsWindow: number = 60;
   changesStatsStep: number = 1;
-  subscribedUserTopWikis: IUserChangesStatsChangedItemEvent[] = [];
-  subscribedUserChangesAggregateStats: IUserChangeAggregateStatsChangedEvent | null = null;
+  subscribedUserTopWikis: ISubscribedUserTopWikiChangedEventWiki[] = [];
+  subscribedUserAggregateStats: ISubscribedUserAggregateStatsChangedEvent | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { deep: true });
@@ -31,47 +39,48 @@ export class SubscribedUserStatsState {
     this.subscribeForUserChanges = this.subscribeForUserChanges.bind(this);
     this.setChangeStatsWindow = this.setChangeStatsWindow.bind(this);
 
-    this.processChangeCreatedEvent = this.processChangeCreatedEvent.bind(this);
-    wsApiHelper.subscribe(SUBSCRIBED_USER_CHANGE_CREATED_EVENT_TYPE, this.processChangeCreatedEvent);
+    this.processSubscribedUserChangeCreatedEvent = this.processSubscribedUserChangeCreatedEvent.bind(this);
+    wsApiHelper.subscribe(SUBSCRIBED_USER_CHANGE_CREATED_EVENT_TYPE, this.processSubscribedUserChangeCreatedEvent);
 
-    this.processUserChangeStatsCreatedEvent = this.processUserChangeStatsCreatedEvent.bind(this);
-    wsApiHelper.subscribe(USER_CHANGE_STATS_CHANGED_EVENT_TYPE, this.processUserChangeStatsCreatedEvent);
+    this.processSubscribedUserStatsCreatedEvent = this.processSubscribedUserStatsCreatedEvent.bind(this);
+    wsApiHelper.subscribe(SUBSCRIBED_USER_STATS_CHANGED_EVENT_TYPE, this.processSubscribedUserStatsCreatedEvent);
 
-    this.processUserChangeAggregateStatsCreatedEvent = this.processUserChangeAggregateStatsCreatedEvent.bind(this);
+    this.processSubscribedUserAggregateStatsCreatedEvent =
+      this.processSubscribedUserAggregateStatsCreatedEvent.bind(this);
     wsApiHelper.subscribe(
-      USER_CHANGE_AGGREGATE_STATS_CHANGED_EVENT_TYPE,
-      this.processUserChangeAggregateStatsCreatedEvent,
+      SUBSCRIBED_USER_AGGREGATE_STATS_CHANGED_EVENT_TYPE,
+      this.processSubscribedUserAggregateStatsCreatedEvent,
     );
 
-    this.processUserWikiChangesStatsChangedEvent = this.processUserWikiChangesStatsChangedEvent.bind(this);
-    wsApiHelper.subscribe(USER_WIKI_CHANGES_STATS_CHANGED_EVENT_TYPE, this.processUserWikiChangesStatsChangedEvent);
+    this.processSubscribedUserTopWikiChangedEvent = this.processSubscribedUserTopWikiChangedEvent.bind(this);
+    wsApiHelper.subscribe(SUBSCRIBED_USER_TOP_WIKI_CHANGED_EVENT_TYPE, this.processSubscribedUserTopWikiChangedEvent);
   }
 
-  private async processChangeCreatedEvent(event: ISubscribedUserChangeCreatedEvent) {
+  private async processSubscribedUserChangeCreatedEvent(event: ISubscribedUserChangeCreatedEvent) {
     this.recentChanges.push(event);
     this.recentChanges = this.recentChanges.slice(-this.keepChanges);
   };
 
-  private async processUserChangeStatsCreatedEvent(event: IUserChangeStatsChangedEvent) {
-    if (this.subscribedUserChangesStatsParts.length === 0) {
+  private async processSubscribedUserStatsCreatedEvent(event: ISubscribedUserStatsChangedEvent) {
+    if (this.subscribedUserStatsParts.length === 0) {
       return;
     }
 
-    const lastChangeStatsPart = this.subscribedUserChangesStatsParts[this.subscribedUserChangesStatsParts.length - 1];
+    const lastChangeStatsPart = this.subscribedUserStatsParts[this.subscribedUserStatsParts.length - 1];
     const eventStartTimestamp = new Date(event.startTimestamp);
 
     if (lastChangeStatsPart.endTimestamp >= eventStartTimestamp) {
       // update last part
-      this.subscribedUserChangesStatsParts[this.subscribedUserChangesStatsParts.length - 1] = {
+      this.subscribedUserStatsParts[this.subscribedUserStatsParts.length - 1] = {
         index: lastChangeStatsPart.index,
         changes: event.changesCount,
         durationInMinutes: event.durationInMinutes,
         endTimestamp: lastChangeStatsPart.endTimestamp,
       };
-      this.subscribedUserChangesStatsParts = this.subscribedUserChangesStatsParts.slice(0); //TODO: replace by deepCopy?
+      this.subscribedUserStatsParts = this.subscribedUserStatsParts.slice(0); //TODO: replace by deepCopy?
     } else {
       // add new part
-      this.subscribedUserChangesStatsParts.push({
+      this.subscribedUserStatsParts.push({
         index: lastChangeStatsPart.index + 1,
         changes: event.changesCount,
         durationInMinutes: event.durationInMinutes,
@@ -79,15 +88,16 @@ export class SubscribedUserStatsState {
           eventStartTimestamp.setMinutes(eventStartTimestamp.getMinutes() + event.durationInMinutes),
         ),
       });
-      this.subscribedUserChangesStatsParts = this.subscribedUserChangesStatsParts.slice(-this.changesStatsWindow);
+      this.subscribedUserStatsParts = this.subscribedUserStatsParts.slice(-this.changesStatsWindow);
     }
   };
 
-  private async processUserChangeAggregateStatsCreatedEvent(event: IUserChangeAggregateStatsChangedEvent) {
-    this.subscribedUserChangesAggregateStats = event;
+  private async processSubscribedUserAggregateStatsCreatedEvent(event: ISubscribedUserAggregateStatsChangedEvent) {
+    this.subscribedUserAggregateStats = event;
   }
 
-  private async processUserWikiChangesStatsChangedEvent(event: IUserWikiChangesStatsChangedEvent) {
+  private async processSubscribedUserTopWikiChangedEvent(event: ISubscribedUserTopWikiChangedEvent) {
+    console.log(event.wikis.length);
     this.subscribedUserTopWikis = event.wikis;
   }
 
@@ -98,7 +108,7 @@ export class SubscribedUserStatsState {
   public async setChangeStatsWindow(window: number, step: number) {
     this.changesStatsWindow = window;
     this.changesStatsStep = step;
-    this.subscribedUserChangesStatsParts = (await UsersApiService.getUserChangesStats({
+    this.subscribedUserStatsParts = (await UsersApiService.getUserChangesStats({
       userName: this.subscribedUserName,
       window: this.changesStatsWindow,
       step: this.changesStatsStep,
@@ -108,7 +118,7 @@ export class SubscribedUserStatsState {
   public async subscribeForUserChanges(userName: string) {
     this.subscribedUserName = userName;
     await AdminApiService.subscribeForUserChanges({ userName: this.subscribedUserName });
-    this.subscribedUserChangesStatsParts = (await UsersApiService.getUserChangesStats({
+    this.subscribedUserStatsParts = (await UsersApiService.getUserChangesStats({
       userName: this.subscribedUserName,
       window: this.changesStatsWindow,
       step: this.changesStatsStep,

@@ -11,10 +11,10 @@ interface IProps {
 const SubscribedUserChangesAggregateStatsContainerInner: React.FC<IProps> = observer(({ state }) => {
   return (
     <>
-      {state.subscribedUserChangesAggregateStats && (
+      {state.subscribedUserAggregateStats && (
         <SubscribedUserChangesAggregateStatsComponent
-          addCount={state.subscribedUserChangesAggregateStats.addCount}
-          editCount={state.subscribedUserChangesAggregateStats.editCount}
+          addCount={state.subscribedUserAggregateStats.addCount}
+          editCount={state.subscribedUserAggregateStats.editCount}
         />
       )}
     </>

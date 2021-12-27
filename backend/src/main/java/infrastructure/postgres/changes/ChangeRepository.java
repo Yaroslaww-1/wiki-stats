@@ -1,7 +1,7 @@
 package infrastructure.postgres.changes;
 
 import domain.change.Change;
-import application.changes.IChangeRepository;
+import application.streaming.changes.steps.createchange.IChangeRepository;
 import infrastructure.postgres.PostgresConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

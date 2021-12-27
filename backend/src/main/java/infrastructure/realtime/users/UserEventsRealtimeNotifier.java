@@ -1,10 +1,9 @@
 package infrastructure.realtime.users;
 
-import application.users.IUserEventsRealtimeNotifier;
+import application.crud.users.IUserEventsRealtimeNotifier;
 import domain.user.User;
 import infrastructure.realtime.Event;
 import infrastructure.realtime.IRealtimeNotifier;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 

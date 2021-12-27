@@ -1,6 +1,6 @@
 package infrastructure.postgres.users;
 
-import application.users.IUserRepository;
+import application.crud.users.IUserRepository;
 import domain.user.User;
 import infrastructure.postgres.PostgresConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.Query.query;
 
 @Component
@@ -26,7 +25,7 @@ class UserRepository implements IUserRepository {
     public Mono<User> getOne(Query query) {
         return connection.template.select(UserEntity.class)
                 .matching(query)
-                .one()
+                .first()
                 .map(this::mapEntityToDomain);
     }
 

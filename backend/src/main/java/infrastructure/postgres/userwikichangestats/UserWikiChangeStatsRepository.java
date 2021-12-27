@@ -1,6 +1,6 @@
 package infrastructure.postgres.userwikichangestats;
 
-import application.changes.IUserWikiChangeStatsRepository;
+import application.streaming.changes.IUserWikiChangeStatsRepository;
 import domain.user.UserWikiChangeStats;
 import infrastructure.postgres.PostgresConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class UserWikiChangeStatsRepository implements IUserWikiChangeStatsReposi
     @Override
     public Mono<UserWikiChangeStats> getOne(Query query) {
         return connection.template.select(UserWikiChangeStatsEntity.class)
-                .matching(query.sort(Sort.by("changes_count").descending()))
+                .matching(query.sort(Sort.by("changes_count").descending()).limit(1))
                 .first()
                 .map(this::mapEntityToDomain);
     }

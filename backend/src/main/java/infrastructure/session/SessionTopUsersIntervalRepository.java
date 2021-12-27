@@ -1,7 +1,7 @@
 package infrastructure.session;
 
-import application.admin.session.ISessionTopUsersIntervalRepository;
-import application.users.topusers.TopUsersInterval;
+import application.crud.admin.session.ISessionTopUsersIntervalRepository;
+import application.crud.users.topusers.TopUsersInterval;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

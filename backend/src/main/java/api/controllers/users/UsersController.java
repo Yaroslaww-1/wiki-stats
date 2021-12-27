@@ -1,16 +1,14 @@
 package api.controllers.users;
 
-import application.users.getlist.GetUsersListQuery;
-import application.users.getlist.GetUsersListQueryHandler;
-import application.users.getlist.UserDto;
-import application.users.getstats.GetUsersStatsQuery;
-import application.users.getstats.GetUsersStatsQueryHandler;
-import application.users.getstats.UsersStatsDto;
-import application.users.getuserchangesstats.GetUserChangesStatsQuery;
-import application.users.getuserchangesstats.GetUserChangesStatsQueryHandler;
-import application.users.getuserchangesstats.UserChangesStatsDto;
-import application.admin.subscribeforuserchanges.SubscribeForUserChangesCommand;
-import application.admin.subscribeforuserchanges.SubscribeForUserChangesCommandHandler;
+import application.crud.users.getlist.GetUsersListQuery;
+import application.crud.users.getlist.GetUsersListQueryHandler;
+import application.crud.users.getlist.UserDto;
+import application.crud.users.getstats.GetUsersStatsQuery;
+import application.crud.users.getstats.GetUsersStatsQueryHandler;
+import application.crud.users.getstats.UsersStatsDto;
+import application.crud.users.getuserchangesstats.GetUserChangesStatsQuery;
+import application.crud.users.getuserchangesstats.GetUserChangesStatsQueryHandler;
+import application.crud.users.getuserchangesstats.UserChangesStatsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;

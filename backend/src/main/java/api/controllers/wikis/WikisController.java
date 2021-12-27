@@ -1,8 +1,8 @@
 package api.controllers.wikis;
 
-import application.wikis.getstats.GetWikisStatsQuery;
-import application.wikis.getstats.GetWikisStatsQueryHandler;
-import application.wikis.getstats.WikisStatsDto;
+import application.crud.wikis.getstats.GetWikisStatsQuery;
+import application.crud.wikis.getstats.GetWikisStatsQueryHandler;
+import application.crud.wikis.getstats.WikisStatsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;

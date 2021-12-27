@@ -1,10 +1,8 @@
 package infrastructure.postgres.wikis;
 
-import application.wikis.IWikiRepository;
-import domain.user.User;
+import application.crud.wikis.IWikiRepository;
 import domain.wiki.Wiki;
 import infrastructure.postgres.PostgresConnectionFactory;
-import infrastructure.postgres.users.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.Query.query;
 
 @Component

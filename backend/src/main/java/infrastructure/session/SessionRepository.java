@@ -1,7 +1,7 @@
 package infrastructure.session;
 
-import application.admin.session.ISessionRepository;
-import application.users.topusers.TopUsersInterval;
+import application.crud.admin.session.ISessionRepository;
+import application.crud.users.topusers.TopUsersInterval;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;

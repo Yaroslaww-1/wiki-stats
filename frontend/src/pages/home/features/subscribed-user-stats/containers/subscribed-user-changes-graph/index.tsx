@@ -11,7 +11,7 @@ interface IProps {
 const SubscribedUserChangesGraphContainerInner: React.FC<IProps> = observer(({ state }) => {
   return (
     <ChangesGraphComponent
-      userChangeStats={state.subscribedUserChangesStatsParts}
+      userChangeStats={state.subscribedUserStatsParts}
       initialWindow={state.changesStatsWindow}
       initialStep={state.changesStatsStep}
       setOptions={state.setChangeStatsWindow}

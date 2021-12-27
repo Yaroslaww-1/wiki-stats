@@ -1,13 +1,17 @@
 import React from "react";
 
-import { IChangeModel } from "@api/changes/change.model";
-
 import { ChangeComponent } from "../change";
 
 import styles from "./styles.module.scss";
 
 interface IProps {
-  recentChanges: IChangeModel[];
+  recentChanges: {
+    id: string;
+    title: string;
+    comment: string;
+    userName: string;
+    wikiName: string;
+  }[];
 }
 
 export const RecentChangesListComponent: React.FC<IProps> = ({
@@ -20,8 +24,8 @@ export const RecentChangesListComponent: React.FC<IProps> = ({
           <ChangeComponent
             title={change.title}
             comment={change.comment}
-            wikiName={change.wiki.name}
-            editorName={change.editor.name}
+            wikiName={change.wikiName}
+            editorName={change.userName}
           />
         </div>
       ))}

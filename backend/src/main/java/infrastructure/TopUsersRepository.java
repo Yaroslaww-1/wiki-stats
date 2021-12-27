@@ -1,10 +1,9 @@
 package infrastructure;
 
-import application.users.topusers.ITopUsersRepository;
-import application.users.topusers.TopUsers;
-import application.users.topusers.TopUsersInterval;
+import application.crud.users.topusers.ITopUsersRepository;
+import application.crud.users.topusers.TopUsers;
+import application.crud.users.topusers.TopUsersInterval;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
@@ -20,28 +19,24 @@ public class TopUsersRepository implements ITopUsersRepository {
     private final List<TopUsers> topYearUsers = new CopyOnWriteArrayList<TopUsers>();
 
     @Override
-    public Flux<TopUsers> insertAndReturnOrderedByInterval(String userName, Long changesCount, TopUsersInterval interval) {
+    public Mono<List<TopUsers>> insertAndReturnOrderedByInterval(String userName, Long changesCount, TopUsersInterval interval) {
         insertAndReturnOrdered(userName, changesCount, this.topDayUsers);
         insertAndReturnOrdered(userName, changesCount, this.topMonthUsers);
         insertAndReturnOrdered(userName, changesCount, this.topYearUsers);
 
-        if (userName.equals("Kappa")) {
-            System.out.println(changesCount);
-        }
-
         if (interval == TopUsersInterval.DAY) {
-            return Flux.fromStream(this.topDayUsers.stream().limit(10));
+            return Mono.just(this.topDayUsers.stream().limit(10).toList());
         }
 
         if (interval == TopUsersInterval.MONTH) {
-            return Flux.fromStream(this.topMonthUsers.stream().limit(10));
+            return Mono.just(this.topMonthUsers.stream().limit(10).toList());
         }
 
         if (interval == TopUsersInterval.YEAR) {
-            return Flux.fromStream(this.topYearUsers.stream().limit(0)); //TODO: remove (for testing only)
+            return Mono.just(this.topYearUsers.stream().limit(10).toList());
         }
 
-        return Flux.empty();
+        return Mono.empty();
     }
 
     private void insertAndReturnOrdered(String userName, Long changesCount, List<TopUsers> topUsers) {
@@ -55,28 +50,8 @@ public class TopUsersRepository implements ITopUsersRepository {
                 return o1.changesCount() > o2.changesCount() ? -1 : 1;
             }
         });
-        if (topUsers.size() >= 10) {
+        while (topUsers.size() >= 10) {
             topUsers.remove(topUsers.size() - 1);
         }
     }
-
-//    @Override
-//    public Mono<Void> set(List<TopUsers> topUsers, TopUsersInterval interval) {
-//        if (interval == TopUsersInterval.DAY) {
-//            this.topDayUsers.clear();
-//            this.topDayUsers.addAll(topUsers);
-//        }
-//
-//        if (interval == TopUsersInterval.MONTH) {
-//            this.topMonthUsers.clear();
-//            this.topMonthUsers.addAll(topUsers);
-//        }
-//
-//        if (interval == TopUsersInterval.YEAR) {
-//            this.topYearUsers.clear();
-//            this.topYearUsers.addAll(topUsers);
-//        }
-//
-//        return Mono.empty();
-//    }
 }

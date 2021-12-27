@@ -1,7 +1,7 @@
 package infrastructure.realtime.users.topusers;
 
-import application.users.topusers.ITopUsersEventsRealtimeNotifier;
-import application.users.topusers.TopUsers;
+import application.crud.users.topusers.ITopUsersEventsRealtimeNotifier;
+import application.crud.users.topusers.TopUsers;
 import infrastructure.realtime.Event;
 import infrastructure.realtime.IRealtimeNotifier;
 import org.springframework.stereotype.Component;

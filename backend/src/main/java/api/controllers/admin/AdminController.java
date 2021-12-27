@@ -1,13 +1,13 @@
 package api.controllers.admin;
 
-import application.admin.resetsession.ResetSessionCommand;
-import application.admin.resetsession.ResetSessionCommandHandler;
-import application.admin.setchangesprocessingdelay.SetChangesProcessingDelayCommand;
-import application.admin.setchangesprocessingdelay.SetChangesProcessingDelayCommandHandler;
-import application.admin.settopusersinterval.SetTopUsersIntervalCommand;
-import application.admin.settopusersinterval.SetTopUsersIntervalCommandHandler;
-import application.admin.subscribeforuserchanges.SubscribeForUserChangesCommand;
-import application.admin.subscribeforuserchanges.SubscribeForUserChangesCommandHandler;
+import application.crud.admin.resetsession.ResetSessionCommand;
+import application.crud.admin.resetsession.ResetSessionCommandHandler;
+import application.crud.admin.setchangesprocessingdelay.SetChangesProcessingDelayCommand;
+import application.crud.admin.setchangesprocessingdelay.SetChangesProcessingDelayCommandHandler;
+import application.crud.admin.settopusersinterval.SetTopUsersIntervalCommand;
+import application.crud.admin.settopusersinterval.SetTopUsersIntervalCommandHandler;
+import application.crud.admin.subscribeforuserchanges.SubscribeForUserChangesCommand;
+import application.crud.admin.subscribeforuserchanges.SubscribeForUserChangesCommandHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;

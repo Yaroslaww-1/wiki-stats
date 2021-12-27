@@ -11,7 +11,11 @@ interface IProps {
 const AllRecentChangesListContainerInner: React.FC<IProps> = observer(({ state }) => {
   return (
     <AllRecentChangesListComponent
-      recentChanges={state.recentChanges}
+      recentChanges={state.recentChanges.map(c => ({
+        ...c,
+        userName: c.editor.name,
+        wikiName: c.wiki.name,
+      }))}
       keepChanges={state.keepChanges}
       setKeepChanges={state.setKeepChanges}
       processingDelay={state.processingDelay}

@@ -1,6 +1,6 @@
 package infrastructure.session;
 
-import application.admin.session.ISessionChangesProcessingDelayRepository;
+import application.crud.admin.session.ISessionChangesProcessingDelayRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;

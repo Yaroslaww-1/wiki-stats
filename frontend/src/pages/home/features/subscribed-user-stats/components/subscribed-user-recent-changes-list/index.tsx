@@ -1,7 +1,5 @@
 import React from "react";
 
-import { IChangeModel } from "@api/changes/change.model";
-
 import { RecentChangesListComponent } from "pages/home/components/recent-changes-list";
 import { KeepChangesInputComponent } from "pages/home/components/keep-changes-input";
 import { SubscribeUserInputComponent } from "../subscribe-user-input";
@@ -9,7 +7,14 @@ import { SubscribeUserInputComponent } from "../subscribe-user-input";
 import styles from "./styles.module.scss";
 
 interface IProps {
-  recentChanges: IChangeModel[];
+  recentChanges: {
+    id: string;
+    timestamp: Date;
+    title: string;
+    comment: string;
+    userName: string;
+    wikiName: string;
+  }[];
   keepChanges: number;
   setKeepChanges: (keepChanges: number) => void;
   subscribedUserName: string;

@@ -9,7 +9,14 @@ import { ChangesProcessingInputComponent } from "pages/home/components/changes-p
 import styles from "./styles.module.scss";
 
 interface IProps {
-  recentChanges: IChangeModel[];
+  recentChanges: {
+    id: string;
+    timestamp: Date;
+    title: string;
+    comment: string;
+    userName: string;
+    wikiName: string;
+  }[];
   keepChanges: number;
   setKeepChanges: (keepChanges: number) => void;
   processingDelay: number;

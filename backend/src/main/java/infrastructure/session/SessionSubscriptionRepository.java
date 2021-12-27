@@ -1,6 +1,6 @@
 package infrastructure.session;
 
-import application.admin.session.IUserSubscriptionRepository;
+import application.crud.admin.session.IUserSubscriptionRepository;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
