@@ -1,17 +1,17 @@
 package application.changes.addchange;
 
+import application.changes.*;
 import application.contracts.ICommandHandler;
-import application.changes.IChangeEventsRealtimeNotifier;
 import application.users.IChangesSubscriptionManager;
-import application.users.IUserChangeStatsEntityRepository;
+import application.users.IUserChangeStatsRepository;
 import application.users.IUserEventsRealtimeNotifier;
 import application.wikis.IWikiEventsRealtimeNotifier;
 import domain.change.Change;
-import application.changes.IChangeRepository;
 import application.users.IUserRepository;
 import domain.user.User;
 import application.wikis.IWikiRepository;
 import domain.user.UserChangeStats;
+import domain.user.UserWikiChangeStats;
 import domain.wiki.Wiki;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,30 +29,37 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
     private final IUserRepository userRepository;
     private final IWikiRepository wikiRepository;
     private final IChangeRepository changeRepository;
-    private final IUserChangeStatsEntityRepository userChangeStatsEntityRepository;
+    private final IUserChangeStatsRepository userChangeStatsRepository;
     private final IUserEventsRealtimeNotifier userEventsRealtimeNotifier;
     private final IWikiEventsRealtimeNotifier wikiEventsRealtimeNotifier;
     private final IChangeEventsRealtimeNotifier changeEventsRealtimeNotifier;
     private final IChangesSubscriptionManager changesSubscriptionManager;
+    private final IUserWikiChangeStatsRepository userWikiChangeStatsRepository;
+    private final IUserWikiChangeStatsOrderedRepository userWikiChangeStatsOrderedRepository;
 
     @Autowired
     public AddChangeCommandHandler(
             IUserRepository userRepository,
             IWikiRepository wikiRepository,
             IChangeRepository changeRepository,
-            IUserChangeStatsEntityRepository userChangeStatsEntityRepository,
+            IUserChangeStatsRepository userChangeStatsRepository,
             IUserEventsRealtimeNotifier userEventsRealtimeNotifier,
             IWikiEventsRealtimeNotifier wikiEventsRealtimeNotifier,
             IChangeEventsRealtimeNotifier changeEventsRealtimeNotifier,
-            IChangesSubscriptionManager changesSubscriptionManager) {
+            IChangesSubscriptionManager changesSubscriptionManager,
+            IUserWikiChangeStatsRepository userWikiChangeStatsRepository,
+            IUserWikiChangeStatsOrderedRepository userWikiChangeStatsOrderedRepository
+    ) {
         this.userRepository = userRepository;
         this.wikiRepository = wikiRepository;
         this.changeRepository = changeRepository;
-        this.userChangeStatsEntityRepository = userChangeStatsEntityRepository;
+        this.userChangeStatsRepository = userChangeStatsRepository;
         this.userEventsRealtimeNotifier = userEventsRealtimeNotifier;
         this.wikiEventsRealtimeNotifier = wikiEventsRealtimeNotifier;
         this.changeEventsRealtimeNotifier = changeEventsRealtimeNotifier;
         this.changesSubscriptionManager = changesSubscriptionManager;
+        this.userWikiChangeStatsRepository = userWikiChangeStatsRepository;
+        this.userWikiChangeStatsOrderedRepository = userWikiChangeStatsOrderedRepository;
     }
 
     @Override
@@ -78,7 +85,8 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
                         command.comment(),
                         command.type()
                 ))
-                .delayUntil(this::createOrUpdateUserChangeStats);
+                .delayUntil(this::createOrUpdateUserChangeStats)
+                .delayUntil(this::createOrUpdateUserWikiChangeStats);
     }
 
     /**
@@ -135,14 +143,14 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
     private Mono<UserChangeStats> createOrUpdateUserChangeStats(Change change) {
         var windowInMinutes = 1L;
 
-        return userChangeStatsEntityRepository
+        return userChangeStatsRepository
                 .getOne(
                         query(where("user_id").is(change.getEditor().getId()))
                 )
                 .filter(userChangeStats ->
                         userChangeStats.getStartTimestamp().plusMinutes(windowInMinutes).isAfter(LocalDateTime.now())
                 )
-                .switchIfEmpty(userChangeStatsEntityRepository.add(
+                .switchIfEmpty(userChangeStatsRepository.add(
                         new UserChangeStats(change.getEditor().getId(), windowInMinutes)
                 ))
                 .delayUntil(userChangeStats -> {
@@ -156,13 +164,47 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
 
                     return Mono.just(userChangeStats);
                 })
-                .delayUntil(userChangeStatsEntityRepository::update)
+                .delayUntil(userChangeStatsRepository::update)
                 .delayUntil(this::notifySubscribedUserChangeStatsChanged);
     }
 
     private Mono<UserChangeStats> notifySubscribedUserChangeStatsChanged(UserChangeStats userChangeStats) {
         return Mono.just(userChangeStats)
                 .filter(c -> changesSubscriptionManager.isSubscribedForUserChanges(c.getUserId()))
-                .delayUntil(changeEventsRealtimeNotifier::notifyChangeStatsChanged);
+                .delayUntil(changeEventsRealtimeNotifier::notifyUserChangeStatsChanged);
+    }
+
+    private Mono<Void> createOrUpdateUserWikiChangeStats(Change change) {
+        if (!changesSubscriptionManager.isSubscribedForUserChanges(change.getEditor().getId())) {
+            return Mono.empty();
+        }
+
+        return userWikiChangeStatsRepository
+                .getOne(
+                        query(
+                                where("user_id").is(change.getEditor().getId()).and(
+                                where("wiki_id").is(change.getWiki().getId()))
+                        )
+                )
+                .switchIfEmpty(userWikiChangeStatsRepository.add(
+                        new UserWikiChangeStats(0L, change.getEditor().getId(), change.getWiki().getId())
+                ))
+                .delayUntil(userWikiChangeStats -> {
+                    if (change.isEdit() || change.isAdd()) {
+                        userWikiChangeStats.incrementChanges();
+                    }
+                    return Mono.just(userWikiChangeStats);
+                })
+                .delayUntil(userWikiChangeStatsRepository::update)
+                .flatMapMany(stats -> userWikiChangeStatsOrderedRepository.insertAndReturnOrdered(
+                        change.getEditor().getId(),
+                        new UserWikiChangeStatsOrdered(stats.getChangesCount(), change.getWiki().getName())
+                ))
+                .collectList()
+                .delayUntil(statsList -> changeEventsRealtimeNotifier.notifyUserWikiChangeStatsChanged(
+                        change.getEditor().getId(),
+                        statsList
+                ))
+                .then(Mono.empty());
     }
 }

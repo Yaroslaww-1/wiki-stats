@@ -10,6 +10,7 @@ import { SubscribedUserChangesGraphContainer } from "./features/subscribed-user-
 
 import styles from "./styles.module.scss";
 import { ResetContainer } from "./features/reset/containers";
+import { TopWikisByChangesContainer } from "./features/subscribed-user-stats/containers/top-wikis-by-changes";
 
 export const HomePage: React.FC = () => {
   return (
@@ -20,6 +21,7 @@ export const HomePage: React.FC = () => {
           <AllWikisStatsContainer />
           <SubscribedUserChangesGraphContainer />
           <ResetContainer />
+          <TopWikisByChangesContainer />
         </div>
         <div className={styles.changesInfo}>
           <SubscribedUserRecentChangesListContainer />

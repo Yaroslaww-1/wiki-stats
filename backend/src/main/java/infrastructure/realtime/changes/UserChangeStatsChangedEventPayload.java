@@ -1,8 +1,6 @@
 package infrastructure.realtime.changes;
 
-import java.time.LocalDateTime;
-
-public record ChangeStatsChangedEventPayload(
+public record UserChangeStatsChangedEventPayload(
         String startTimestamp,
         Long durationInMinutes,
         Long changesCount,

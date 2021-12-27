@@ -1,12 +1,16 @@
 package infrastructure.realtime.changes;
 
 import application.changes.IChangeEventsRealtimeNotifier;
+import application.changes.UserWikiChangeStatsOrdered;
 import domain.change.Change;
 import domain.user.UserChangeStats;
+import domain.user.UserWikiChangeStats;
 import infrastructure.realtime.Event;
 import infrastructure.realtime.IRealtimeNotifier;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 public class ChangeEventsRealtimeNotifier implements IChangeEventsRealtimeNotifier {
@@ -61,15 +65,31 @@ public class ChangeEventsRealtimeNotifier implements IChangeEventsRealtimeNotifi
     }
 
     @Override
-    public Mono<Void> notifyChangeStatsChanged(UserChangeStats userChangeStats) {
-        var eventPayload = new ChangeStatsChangedEventPayload(
+    public Mono<Void> notifyUserChangeStatsChanged(UserChangeStats userChangeStats) {
+        var eventPayload = new UserChangeStatsChangedEventPayload(
                 userChangeStats.getStartTimestamp().toString(),
                 userChangeStats.getDurationInMinutes(),
                 userChangeStats.getChangesCount(),
                 userChangeStats.getUserId()
         );
 
-        realtimeNotifier.sendEvent(new Event("ChangeStatsChanged", eventPayload));
+        realtimeNotifier.sendEvent(new Event("UserChangeStatsChanged", eventPayload));
+
+        return Mono.empty();
+    }
+
+    @Override
+    public Mono<Void> notifyUserWikiChangeStatsChanged(String userId, List<UserWikiChangeStatsOrdered> userWikiChangeStats) {
+        var items = userWikiChangeStats.stream()
+                .map(stats -> new UserWikiChangeStatsChangedEventItemPayload(
+                        stats.changesCount(),
+                        stats.wikiName()
+                ))
+                .toList();
+
+        var eventPayload = new UserWikiChangeStatsChangedEventPayload(userId, items);
+
+        realtimeNotifier.sendEvent(new Event("UserWikiChangeStatsChanged", eventPayload));
 
         return Mono.empty();
     }

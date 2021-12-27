@@ -6,6 +6,11 @@ import { SUBSCRIBED_USER_CHANGE_CREATED_EVENT_TYPE, ISubscribedUserChangeCreated
 import { IUserChangesStatsPartModel } from "@api/users/user-changes-stats.model";
 import { UsersApiService } from "@api/users/users-api.service";
 import { USER_CHANGES_STATS_CHANGED_EVENT_TYPE, IUserChangesStatsChangedEvent } from "@api/users/user-changes-stats-changed.event";
+import {
+  IUserChangesStatsChangedItemEvent,
+  IUserWikiChangesStatsChangedEvent,
+  USER_WIKI_CHANGES_STATS_CHANGED_EVENT_TYPE,
+} from "@api/users/user-wiki-changes-stats-changed.event";
 
 export class SubscribedUserStatsState {
   recentChanges: IChangeModel[] = [];
@@ -14,6 +19,7 @@ export class SubscribedUserStatsState {
   subscribedUserChangesStatsParts: IUserChangesStatsPartModel[] = [];
   changesStatsWindow: number = 60;
   changesStatsStep: number = 1;
+  subscribedUserTopWikis: IUserChangesStatsChangedItemEvent[] = [];
 
   constructor() {
     makeAutoObservable(this, {}, { deep: true });
@@ -27,6 +33,9 @@ export class SubscribedUserStatsState {
 
     this.processUserChangesStatsCreatedEvent = this.processUserChangesStatsCreatedEvent.bind(this);
     wsApiHelper.subscribe(USER_CHANGES_STATS_CHANGED_EVENT_TYPE, this.processUserChangesStatsCreatedEvent);
+
+    this.processUserWikiChangesStatsChangedEvent = this.processUserWikiChangesStatsChangedEvent.bind(this);
+    wsApiHelper.subscribe(USER_WIKI_CHANGES_STATS_CHANGED_EVENT_TYPE, this.processUserWikiChangesStatsChangedEvent);
   }
 
   private async processChangeCreatedEvent(event: ISubscribedUserChangeCreatedEvent) {
@@ -64,6 +73,10 @@ export class SubscribedUserStatsState {
       this.subscribedUserChangesStatsParts = this.subscribedUserChangesStatsParts.slice(-this.changesStatsWindow);
     }
   };
+
+  private async processUserWikiChangesStatsChangedEvent(event: IUserWikiChangesStatsChangedEvent) {
+    this.subscribedUserTopWikis = event.wikis;
+  }
 
   public setKeepChanges(keepChanges: number) {
     this.keepChanges = keepChanges;

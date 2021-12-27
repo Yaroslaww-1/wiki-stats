@@ -35,3 +35,12 @@ CREATE TABLE user_change_stats
     user_id VARCHAR(63) NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
     CONSTRAINT pk_user_changes_stats_id PRIMARY KEY (id)
 );
+
+CREATE TABLE user_wiki_change_stats
+(
+    id VARCHAR(63) NOT NULL,
+    changes_count INTEGER NOT NULL,
+    user_id VARCHAR(63) NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+    wiki_id VARCHAR(63) NOT NULL REFERENCES wikis (id) ON UPDATE CASCADE,
+    CONSTRAINT pk_user_wikis_stats_id PRIMARY KEY (id)
+);

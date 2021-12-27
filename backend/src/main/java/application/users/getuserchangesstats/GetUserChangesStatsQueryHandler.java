@@ -1,7 +1,7 @@
 package application.users.getuserchangesstats;
 
 import application.contracts.IQueryHandler;
-import application.users.IUserChangeStatsEntityRepository;
+import application.users.IUserChangeStatsRepository;
 import application.users.IUserEventsRealtimeNotifier;
 import application.users.IUserRepository;
 import domain.user.User;
@@ -20,16 +20,16 @@ import static org.springframework.data.relational.core.query.Query.query;
 public class GetUserChangesStatsQueryHandler implements IQueryHandler<GetUserChangesStatsQuery, UserChangesStatsDto> {
     private final IUserRepository userRepository;
     private final IUserEventsRealtimeNotifier userEventsRealtimeNotifier;
-    private final IUserChangeStatsEntityRepository userChangeStatsEntityRepository;
+    private final IUserChangeStatsRepository userChangeStatsRepository;
 
     public GetUserChangesStatsQueryHandler(
             IUserRepository userRepository,
             IUserEventsRealtimeNotifier userEventsRealtimeNotifier,
-            IUserChangeStatsEntityRepository userChangeStatsEntityRepository
+            IUserChangeStatsRepository userChangeStatsRepository
     ) {
         this.userRepository = userRepository;
         this.userEventsRealtimeNotifier = userEventsRealtimeNotifier;
-        this.userChangeStatsEntityRepository = userChangeStatsEntityRepository;
+        this.userChangeStatsRepository = userChangeStatsRepository;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class GetUserChangesStatsQueryHandler implements IQueryHandler<GetUserCha
                 .switchIfEmpty(this.createUser(query.userName()));
 
         return userMono
-                .flatMap(user -> userChangeStatsEntityRepository
+                .flatMap(user -> userChangeStatsRepository
                         .getAll(
                                 query(where("user_id").is(user.getId()))
                                         .limit(query.windowDurationInMinutes().intValue())

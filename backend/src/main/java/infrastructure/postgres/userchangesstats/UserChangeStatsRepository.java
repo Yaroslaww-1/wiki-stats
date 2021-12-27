@@ -1,6 +1,6 @@
 package infrastructure.postgres.userchangesstats;
 
-import application.users.IUserChangeStatsEntityRepository;
+import application.users.IUserChangeStatsRepository;
 import domain.user.UserChangeStats;
 import infrastructure.postgres.PostgresConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +16,11 @@ import static org.springframework.data.relational.core.query.Query.query;
 
 
 @Component
-public class UserChangeStatsEntityRepository implements IUserChangeStatsEntityRepository {
+public class UserChangeStatsRepository implements IUserChangeStatsRepository {
     private final PostgresConnectionFactory connection;
 
     @Autowired
-    public UserChangeStatsEntityRepository(
+    public UserChangeStatsRepository(
             PostgresConnectionFactory connection
     ) {
         this.connection = connection;
