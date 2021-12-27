@@ -1,4 +1,4 @@
-package application.users.subscribeforuserchanges;
+package application.admin.subscribeforuserchanges;
 
 public record SubscribeForUserChangesCommand(
         String userName

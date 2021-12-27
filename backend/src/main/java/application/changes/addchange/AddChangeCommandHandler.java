@@ -1,5 +1,6 @@
 package application.changes.addchange;
 
+import application.admin.session.ISessionRepository;
 import application.changes.*;
 import application.contracts.ICommandHandler;
 import application.users.*;
@@ -33,7 +34,7 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
     private final IUserEventsRealtimeNotifier userEventsRealtimeNotifier;
     private final IWikiEventsRealtimeNotifier wikiEventsRealtimeNotifier;
     private final IChangeEventsRealtimeNotifier changeEventsRealtimeNotifier;
-    private final IChangesSubscriptionManager changesSubscriptionManager;
+    private final ISessionRepository sessionRepository;
     private final IUserWikiChangeStatsRepository userWikiChangeStatsRepository;
     private final IUserWikiChangeStatsOrderedRepository userWikiChangeStatsOrderedRepository;
     private final IUserChangeAggregateStatsRepository userChangeAggregateStatsRepository;
@@ -49,7 +50,7 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
             IUserEventsRealtimeNotifier userEventsRealtimeNotifier,
             IWikiEventsRealtimeNotifier wikiEventsRealtimeNotifier,
             IChangeEventsRealtimeNotifier changeEventsRealtimeNotifier,
-            IChangesSubscriptionManager changesSubscriptionManager,
+            ISessionRepository sessionRepository,
             IUserWikiChangeStatsRepository userWikiChangeStatsRepository,
             IUserWikiChangeStatsOrderedRepository userWikiChangeStatsOrderedRepository,
             IUserChangeAggregateStatsRepository userChangeAggregateStatsRepository,
@@ -63,7 +64,7 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
         this.userEventsRealtimeNotifier = userEventsRealtimeNotifier;
         this.wikiEventsRealtimeNotifier = wikiEventsRealtimeNotifier;
         this.changeEventsRealtimeNotifier = changeEventsRealtimeNotifier;
-        this.changesSubscriptionManager = changesSubscriptionManager;
+        this.sessionRepository = sessionRepository;
         this.userWikiChangeStatsRepository = userWikiChangeStatsRepository;
         this.userWikiChangeStatsOrderedRepository = userWikiChangeStatsOrderedRepository;
         this.userChangeAggregateStatsRepository = userChangeAggregateStatsRepository;
@@ -149,7 +150,7 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
 
     private Mono<Change> notifySubscribedUserChangeCreated(Change change) {
         return Mono.just(change)
-                .filter(c -> changesSubscriptionManager.isSubscribedForUserChanges(c.getEditor().getId()))
+                .filter(c -> sessionRepository.isSubscribedForUserChanges(c.getEditor().getId()))
                 .delayUntil(changeEventsRealtimeNotifier::notifySubscribedUserChangeCreated);
     }
 
@@ -188,12 +189,12 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
 
     private Mono<UserChangeStats> notifySubscribedUserChangeStatsChanged(UserChangeStats userChangeStats) {
         return Mono.just(userChangeStats)
-                .filter(c -> changesSubscriptionManager.isSubscribedForUserChanges(c.getUserId()))
+                .filter(c -> sessionRepository.isSubscribedForUserChanges(c.getUserId()))
                 .delayUntil(changeEventsRealtimeNotifier::notifyUserChangeStatsChanged);
     }
 
     private Mono<Void> createOrUpdateUserWikiChangeStats(Change change) {
-        if (!changesSubscriptionManager.isSubscribedForUserChanges(change.getEditor().getId())) {
+        if (!sessionRepository.isSubscribedForUserChanges(change.getEditor().getId())) {
             return Mono.empty();
         }
 
@@ -243,7 +244,7 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
                     return Mono.just(userChangeAggregateStats);
                 })
                 .delayUntil(userChangeAggregateStatsRepository::update)
-                .filter(c -> changesSubscriptionManager.isSubscribedForUserChanges(c.getUserId()))
+                .filter(c -> sessionRepository.isSubscribedForUserChanges(c.getUserId()))
                 .delayUntil(changeEventsRealtimeNotifier::notifyUserChangeAggregateStatsChanged)
                 .then(Mono.empty());
     }

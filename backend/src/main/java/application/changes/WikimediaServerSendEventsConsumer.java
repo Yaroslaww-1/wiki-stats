@@ -1,5 +1,6 @@
 package application.changes;
 
+import application.admin.session.ISessionRepository;
 import application.changes.addchange.AddChangeCommand;
 import application.changes.addchange.AddChangeCommandHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,17 +23,17 @@ import java.time.ZoneId;
 public class WikimediaServerSendEventsConsumer {
     private final Logger logger;
     private final AddChangeCommandHandler addChangeCommandHandler;
-    private final IChangesProcessingDelayManager wikimediaServerSendEventsDelayManager;
+    private final ISessionRepository sessionRepository;
 
     @Autowired
     public WikimediaServerSendEventsConsumer(
             AddChangeCommandHandler addChangeCommandHandler,
             Logger logger,
-            IChangesProcessingDelayManager wikimediaServerSendEventsDelayManager
+            ISessionRepository sessionRepository
     ) {
         this.logger = logger;
         this.addChangeCommandHandler = addChangeCommandHandler;
-        this.wikimediaServerSendEventsDelayManager = wikimediaServerSendEventsDelayManager;
+        this.sessionRepository = sessionRepository;
     }
 
     public Flux<Change> startConsuming() {
@@ -57,7 +58,6 @@ public class WikimediaServerSendEventsConsumer {
         }
 
         try {
-            Long delay = wikimediaServerSendEventsDelayManager.getDelay().toMillis();
             return Mono
                     .from(addChangeCommandHandler.execute(new AddChangeCommand(
                             node.get("id").asText(),
@@ -72,7 +72,7 @@ public class WikimediaServerSendEventsConsumer {
                             node.get("wiki").asText(),
                             node.get("type").asText()
                     )))
-                    .delayElement(wikimediaServerSendEventsDelayManager.getDelay());
+                    .delayElement(sessionRepository.getProcessingDelay());
         } catch (NullPointerException e) {
             return Mono.error(e);
         }

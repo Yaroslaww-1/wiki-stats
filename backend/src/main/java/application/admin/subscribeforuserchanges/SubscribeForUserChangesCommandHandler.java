@@ -1,7 +1,7 @@
-package application.users.subscribeforuserchanges;
+package application.admin.subscribeforuserchanges;
 
+import application.admin.session.ISessionRepository;
 import application.contracts.ICommandHandler;
-import application.users.IChangesSubscriptionManager;
 import application.users.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,14 +12,14 @@ import static org.springframework.data.relational.core.query.Query.query;
 
 @Component
 public class SubscribeForUserChangesCommandHandler implements ICommandHandler<SubscribeForUserChangesCommand, Void> {
-    private final IChangesSubscriptionManager changesSubscriptionManager;
+    private final ISessionRepository sessionRepository;
     private final IUserRepository userRepository;
 
     @Autowired
     public SubscribeForUserChangesCommandHandler(
-            IChangesSubscriptionManager changesSubscriptionManager,
+            ISessionRepository sessionRepository,
             IUserRepository userRepository) {
-        this.changesSubscriptionManager = changesSubscriptionManager;
+        this.sessionRepository = sessionRepository;
         this.userRepository = userRepository;
     }
 
@@ -30,7 +30,7 @@ public class SubscribeForUserChangesCommandHandler implements ICommandHandler<Su
                     query(where("name").is(query.userName()))
                 )
                 .flatMap(user -> {
-                    changesSubscriptionManager.subscribeForUserChanges(user.getId());
+                    sessionRepository.subscribeForUserChanges(user.getId());
                     return Mono.empty();
                 });
     }

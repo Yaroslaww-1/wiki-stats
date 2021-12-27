@@ -9,8 +9,8 @@ import application.users.getstats.UsersStatsDto;
 import application.users.getuserchangesstats.GetUserChangesStatsQuery;
 import application.users.getuserchangesstats.GetUserChangesStatsQueryHandler;
 import application.users.getuserchangesstats.UserChangesStatsDto;
-import application.users.subscribeforuserchanges.SubscribeForUserChangesCommand;
-import application.users.subscribeforuserchanges.SubscribeForUserChangesCommandHandler;
+import application.admin.subscribeforuserchanges.SubscribeForUserChangesCommand;
+import application.admin.subscribeforuserchanges.SubscribeForUserChangesCommandHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -23,18 +23,16 @@ public class UsersController {
     private final GetUsersListQueryHandler getUsersListQueryHandler;
     private final GetUsersStatsQueryHandler getUsersStatsQueryHandler;
     private final GetUserChangesStatsQueryHandler getUserChangesStatsQueryHandler;
-    private final SubscribeForUserChangesCommandHandler subscribeForUserChangesCommandHandler;
 
     @Autowired
     public UsersController(
             GetUsersListQueryHandler getUsersListQueryHandler,
             GetUsersStatsQueryHandler getUsersStatsQueryHandler,
-            GetUserChangesStatsQueryHandler getUserChangesStatsQueryHandler,
-            SubscribeForUserChangesCommandHandler subscribeForUserChangesCommandHandler) {
+            GetUserChangesStatsQueryHandler getUserChangesStatsQueryHandler
+    ) {
         this.getUsersListQueryHandler = getUsersListQueryHandler;
         this.getUsersStatsQueryHandler = getUsersStatsQueryHandler;
         this.getUserChangesStatsQueryHandler = getUserChangesStatsQueryHandler;
-        this.subscribeForUserChangesCommandHandler = subscribeForUserChangesCommandHandler;
     }
 
     @GetMapping("")
@@ -51,12 +49,6 @@ public class UsersController {
     private Mono<UsersStatsDto> getStats() {
         var query = new GetUsersStatsQuery();
         return getUsersStatsQueryHandler.execute(query);
-    }
-
-    @PostMapping("{userName}/subscribe")
-    private Mono<Void> postSubscribe(@PathVariable String userName) {
-        var command = new SubscribeForUserChangesCommand(userName);
-        return subscribeForUserChangesCommandHandler.execute(command);
     }
 
     @GetMapping("{userName}/stats")

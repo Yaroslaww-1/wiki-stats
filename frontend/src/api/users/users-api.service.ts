@@ -10,10 +10,6 @@ export class UsersApiService {
     return httpApi.get(`${endpoint}/stats`);
   }
 
-  static async subscribeForUserChanges({ userName }: { userName: string }): Promise<void> {
-    return httpApi.post(`${endpoint}/${userName}/subscribe`, {});
-  }
-
   static async getUserChangesStats(
     { userName, window, step }: { userName: string; window: number, step: number },
   ): Promise<IUserChangesStatsModel> {

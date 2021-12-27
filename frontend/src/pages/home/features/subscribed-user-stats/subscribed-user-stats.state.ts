@@ -12,6 +12,7 @@ import {
   USER_WIKI_CHANGES_STATS_CHANGED_EVENT_TYPE,
 } from "@api/users/events/user-wiki-changes-stats-changed.event";
 import { IUserChangeAggregateStatsChangedEvent, USER_CHANGE_AGGREGATE_STATS_CHANGED_EVENT_TYPE } from "@api/users/events/user-change-aggregate-stats-changed.event";
+import { AdminApiService } from "@api/admin/admin-api.service";
 
 export class SubscribedUserStatsState {
   recentChanges: IChangeModel[] = [];
@@ -106,7 +107,7 @@ export class SubscribedUserStatsState {
 
   public async subscribeForUserChanges(userName: string) {
     this.subscribedUserName = userName;
-    await UsersApiService.subscribeForUserChanges({ userName: this.subscribedUserName });
+    await AdminApiService.subscribeForUserChanges({ userName: this.subscribedUserName });
     this.subscribedUserChangesStatsParts = (await UsersApiService.getUserChangesStats({
       userName: this.subscribedUserName,
       window: this.changesStatsWindow,

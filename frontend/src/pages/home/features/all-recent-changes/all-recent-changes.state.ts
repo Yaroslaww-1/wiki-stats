@@ -3,7 +3,7 @@ import { makeAutoObservable } from "mobx";
 import wsApiHelper from "@api/ws-api.helper";
 import { IChangeModel } from "@api/changes/change.model";
 import { CHANGE_CREATED_EVENT_TYPE, IChangeCreatedEvent } from "@api/changes/change-created.event";
-import { ChangesApiService } from "@api/changes/changes-api.service";
+import { AdminApiService } from "@api/admin/admin-api.service";
 
 export class AllRecentChangesState {
   recentChanges: IChangeModel[] = [];
@@ -31,7 +31,7 @@ export class AllRecentChangesState {
 
   public setProcessingDelay(processingDelay: number) {
     this.processingDelay = processingDelay;
-    ChangesApiService.setDelay({ delay: processingDelay });
+    AdminApiService.setDelay({ delay: processingDelay });
   }
 }
 

@@ -1,4 +1,4 @@
-package api.controllers.changes;
+package api.controllers.admin;
 
 public record SetDelayRequest(
         Integer delay

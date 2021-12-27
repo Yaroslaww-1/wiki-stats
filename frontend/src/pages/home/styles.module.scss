@@ -7,8 +7,6 @@
     flex-direction: row;
     justify-content: space-between;
 
-    height: 100%;
-
     .usersWikis {
       width: 30%;
       display: flex;
@@ -17,6 +15,8 @@
       .usersWikisStats {
         display: flex;
         flex-direction: row;
+
+        height: 15vh;
 
         :first-child {
           margin-right: 25px;
