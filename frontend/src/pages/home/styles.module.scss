@@ -1,46 +1,60 @@
 .root {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
 
-  .usersWikisInfo {
-    width: 30%;
-    display: flex;
-    flex-direction: column;
-
-    .usersWikisStats {
-      display: flex;
-      flex-direction: row;
-
-      :first-child {
-        margin-right: 25px;
-      }
-
-      .reset {
-        margin-left: 25px;
-      }
-    }
-
-    > * {
-      margin-top: 25px;
-
-      &:first-child {
-        margin-right: 25px;
-      }
-    }
-  }
-
-  .changesInfo {
+  .infos {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 
-    width: 70%;
-    margin-top: 25px;
+    height: 100%;
 
-    > * {
-      width: 50%;
-      max-width: 50%;
+    .usersWikis {
+      width: 30%;
+      display: flex;
+      flex-direction: column;
+
+      .usersWikisStats {
+        display: flex;
+        flex-direction: row;
+
+        :first-child {
+          margin-right: 25px;
+        }
+
+        .reset {
+          margin-left: 25px;
+        }
+      }
+
+      > * {
+        margin-top: 25px;
+
+        &:first-child {
+          margin-right: 25px;
+        }
+      }
     }
+
+    .changes {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+
+      width: 70%;
+      margin-top: 25px;
+
+      > * {
+        width: 50%;
+        max-width: 50%;
+      }
+    }
+  }
+
+  .tops {
+    display: flex;
+    flex-direction: row;
+
+    margin-top: 25px;
   }
 }

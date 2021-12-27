@@ -3,7 +3,6 @@ package application.changes;
 import domain.change.Change;
 import domain.user.UserChangeAggregateStats;
 import domain.user.UserChangeStats;
-import domain.user.UserWikiChangeStats;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

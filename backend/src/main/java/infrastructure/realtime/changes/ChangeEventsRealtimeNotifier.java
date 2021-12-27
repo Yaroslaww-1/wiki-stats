@@ -5,7 +5,6 @@ import application.changes.UserWikiChangeStatsOrdered;
 import domain.change.Change;
 import domain.user.UserChangeAggregateStats;
 import domain.user.UserChangeStats;
-import domain.user.UserWikiChangeStats;
 import infrastructure.realtime.Event;
 import infrastructure.realtime.IRealtimeNotifier;
 import org.springframework.stereotype.Component;

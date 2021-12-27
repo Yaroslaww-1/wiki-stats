@@ -12,26 +12,32 @@ import styles from "./styles.module.scss";
 import { ResetContainer } from "./features/reset/containers";
 import { TopWikisByChangesContainer } from "./features/subscribed-user-stats/containers/top-wikis-by-changes";
 import { SubscribedUserChangesAggregateStatsContainer } from "./features/subscribed-user-stats/containers/subscribed-user-chages-aggregate-stats";
+import { TopUsersContainer } from "./features/top-users/containers";
 
 export const HomePage: React.FC = () => {
   return (
     <PageComponent>
       <div className={styles.root}>
-        <div className={styles.usersWikisInfo}>
-          <div className={styles.usersWikisStats}>
-            <AllUsersStatsContainer />
-            <AllWikisStatsContainer />
-            <div className={styles.reset}>
-              <ResetContainer />
+        <div className={styles.infos}>
+          <div className={styles.usersWikis}>
+            <div className={styles.usersWikisStats}>
+              <AllUsersStatsContainer />
+              <AllWikisStatsContainer />
+              <div className={styles.reset}>
+                <ResetContainer />
+              </div>
             </div>
+            <SubscribedUserChangesGraphContainer />
+            <SubscribedUserChangesAggregateStatsContainer />
+            <TopWikisByChangesContainer />
           </div>
-          <SubscribedUserChangesGraphContainer />
-          <SubscribedUserChangesAggregateStatsContainer />
-          <TopWikisByChangesContainer />
+          <div className={styles.changes}>
+            <SubscribedUserRecentChangesListContainer />
+            <AllRecentChangesListContainer />
+          </div>
         </div>
-        <div className={styles.changesInfo}>
-          <SubscribedUserRecentChangesListContainer />
-          <AllRecentChangesListContainer />
+        <div className={styles.tops}>
+          <TopUsersContainer />
         </div>
       </div>
     </PageComponent>

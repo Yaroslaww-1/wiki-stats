@@ -3,6 +3,8 @@ package application.changes.addchange;
 import application.changes.*;
 import application.contracts.ICommandHandler;
 import application.users.*;
+import application.users.topusers.ITopUsersEventsRealtimeNotifier;
+import application.users.topusers.ITopUsersRepository;
 import application.wikis.IWikiEventsRealtimeNotifier;
 import domain.change.Change;
 import domain.user.User;
@@ -35,6 +37,8 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
     private final IUserWikiChangeStatsRepository userWikiChangeStatsRepository;
     private final IUserWikiChangeStatsOrderedRepository userWikiChangeStatsOrderedRepository;
     private final IUserChangeAggregateStatsRepository userChangeAggregateStatsRepository;
+    private final ITopUsersRepository topUsersRepository;
+    private final ITopUsersEventsRealtimeNotifier topUsersEventsRealtimeNotifier;
 
     @Autowired
     public AddChangeCommandHandler(
@@ -48,7 +52,9 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
             IChangesSubscriptionManager changesSubscriptionManager,
             IUserWikiChangeStatsRepository userWikiChangeStatsRepository,
             IUserWikiChangeStatsOrderedRepository userWikiChangeStatsOrderedRepository,
-            IUserChangeAggregateStatsRepository userChangeAggregateStatsRepository
+            IUserChangeAggregateStatsRepository userChangeAggregateStatsRepository,
+            ITopUsersRepository topUsersRepository,
+            ITopUsersEventsRealtimeNotifier topUsersEventsRealtimeNotifier
     ) {
         this.userRepository = userRepository;
         this.wikiRepository = wikiRepository;
@@ -61,6 +67,8 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
         this.userWikiChangeStatsRepository = userWikiChangeStatsRepository;
         this.userWikiChangeStatsOrderedRepository = userWikiChangeStatsOrderedRepository;
         this.userChangeAggregateStatsRepository = userChangeAggregateStatsRepository;
+        this.topUsersRepository = topUsersRepository;
+        this.topUsersEventsRealtimeNotifier = topUsersEventsRealtimeNotifier;
     }
 
     @Override
@@ -170,7 +178,12 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
                     return Mono.just(userChangeStats);
                 })
                 .delayUntil(userChangeStatsRepository::update)
-                .delayUntil(this::notifySubscribedUserChangeStatsChanged);
+                .delayUntil(this::notifySubscribedUserChangeStatsChanged)
+                .delayUntil(stats -> topUsersRepository
+                        .insertAndReturnOrdered(change.getEditor().getName(), stats.getChangesCount())
+                        .collectList()
+                        .delayUntil(topUsersEventsRealtimeNotifier::notifyTopUsersChanged)
+                );
     }
 
     private Mono<UserChangeStats> notifySubscribedUserChangeStatsChanged(UserChangeStats userChangeStats) {

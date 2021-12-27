@@ -4,25 +4,23 @@ import React from "react";
 import styles from "./styles.module.scss";
 
 interface IProps {
-  wikisStats: {
+  topUsers: {
+    userName: string;
     changesCount: number;
-    wikiName: string;
   }[];
 }
 
-export const TopWikisByChangesComponent: React.FC<IProps> = ({
-  wikisStats = [],
-}) => {
+export const TopUsersComponent: React.FC<IProps> = ({ topUsers }) => {
   return (
     <>
-      {wikisStats.length > 0 && (
+      {topUsers.length > 0 && (
         <div className={styles.root}>
           <div className={styles.header}>
-            Top {wikisStats.length} user wikis by changes
+            Top {topUsers.length} users by changes
           </div>
           <TableComponent
-            data={wikisStats}
-            keys={["changesCount", "wikiName"]}
+            data={topUsers}
+            keys={["userName", "changesCount"]}
           />
         </div>
       )}
