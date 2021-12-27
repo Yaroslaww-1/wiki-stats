@@ -179,12 +179,7 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
                     return Mono.just(userChangeStats);
                 })
                 .delayUntil(userChangeStatsRepository::update)
-                .delayUntil(this::notifySubscribedUserChangeStatsChanged)
-                .delayUntil(stats -> topUsersRepository
-                        .insertAndReturnOrdered(change.getEditor().getName(), stats.getChangesCount())
-                        .collectList()
-                        .delayUntil(topUsersEventsRealtimeNotifier::notifyTopUsersChanged)
-                );
+                .delayUntil(this::notifySubscribedUserChangeStatsChanged);
     }
 
     private Mono<UserChangeStats> notifySubscribedUserChangeStatsChanged(UserChangeStats userChangeStats) {
@@ -244,6 +239,15 @@ public class AddChangeCommandHandler implements ICommandHandler<AddChangeCommand
                     return Mono.just(userChangeAggregateStats);
                 })
                 .delayUntil(userChangeAggregateStatsRepository::update)
+                .delayUntil(stats -> topUsersRepository
+                        .insertAndReturnOrderedByInterval(
+                                change.getEditor().getName(),
+                                stats.getEditCount(),
+                                sessionRepository.getTopUsersInterval()
+                        )
+                        .collectList()
+                        .delayUntil(topUsersEventsRealtimeNotifier::notifyTopUsersChanged)
+                )
                 .filter(c -> sessionRepository.isSubscribedForUserChanges(c.getUserId()))
                 .delayUntil(changeEventsRealtimeNotifier::notifyUserChangeAggregateStatsChanged)
                 .then(Mono.empty());

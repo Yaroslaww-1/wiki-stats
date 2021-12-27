@@ -7,6 +7,8 @@
     flex-direction: row;
     justify-content: space-between;
 
+    height: 100vh;
+
     .usersWikis {
       width: 30%;
       display: flex;
@@ -56,5 +58,7 @@
     flex-direction: row;
 
     margin-top: 25px;
+
+    width: 100vw;
   }
 }

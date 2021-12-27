@@ -29,8 +29,7 @@ public class WebSocketHandler implements org.springframework.web.reactive.socket
                 .flatMap(__ -> realtimeNotifier.getEvents())
                 .flatMap(this::mapEventToString)
                 .map(session::textMessage)
-                .doOnError(throwable -> logger.error("Exception during sending WS event: " + throwable.getMessage()))
-                .doOnNext(message -> logger.info("Send WS event: " + message));
+                .doOnError(throwable -> logger.error("Exception during sending WS event: " + throwable.getMessage()));
         return session.send(messages);
     }
 

@@ -6,6 +6,5 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface ITopUsersRepository {
-    Flux<TopUsers> insertAndReturnOrdered(String userName, Long changesCount);
-    Mono<Void> set(List<TopUsers> topUsers);
+    Flux<TopUsers> insertAndReturnOrderedByInterval(String userName, Long changesCount, TopUsersInterval interval);
 }

@@ -10,7 +10,7 @@ interface IProps {
   }[];
 }
 
-export const TopUsersComponent: React.FC<IProps> = ({ topUsers }) => {
+export const TopUsersTableComponent: React.FC<IProps> = ({ topUsers }) => {
   return (
     <>
       {topUsers.length > 0 && (

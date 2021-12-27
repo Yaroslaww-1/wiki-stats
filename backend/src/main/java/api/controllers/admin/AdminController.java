@@ -4,6 +4,8 @@ import application.admin.resetsession.ResetSessionCommand;
 import application.admin.resetsession.ResetSessionCommandHandler;
 import application.admin.setchangesprocessingdelay.SetChangesProcessingDelayCommand;
 import application.admin.setchangesprocessingdelay.SetChangesProcessingDelayCommandHandler;
+import application.admin.settopusersinterval.SetTopUsersIntervalCommand;
+import application.admin.settopusersinterval.SetTopUsersIntervalCommandHandler;
 import application.admin.subscribeforuserchanges.SubscribeForUserChangesCommand;
 import application.admin.subscribeforuserchanges.SubscribeForUserChangesCommandHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +18,19 @@ public class AdminController {
     private final ResetSessionCommandHandler resetSessionCommandHandler;
     private final SetChangesProcessingDelayCommandHandler setChangesProcessingDelayCommandHandler;
     private final SubscribeForUserChangesCommandHandler subscribeForUserChangesCommandHandler;
+    private final SetTopUsersIntervalCommandHandler setTopUsersIntervalCommandHandler;
 
     @Autowired
     public AdminController(
             ResetSessionCommandHandler resetSessionCommandHandler,
             SetChangesProcessingDelayCommandHandler setChangesProcessingDelayCommandHandler,
-            SubscribeForUserChangesCommandHandler subscribeForUserChangesCommandHandler
+            SubscribeForUserChangesCommandHandler subscribeForUserChangesCommandHandler,
+            SetTopUsersIntervalCommandHandler setTopUsersIntervalCommandHandler
     ) {
         this.resetSessionCommandHandler = resetSessionCommandHandler;
         this.setChangesProcessingDelayCommandHandler = setChangesProcessingDelayCommandHandler;
         this.subscribeForUserChangesCommandHandler = subscribeForUserChangesCommandHandler;
+        this.setTopUsersIntervalCommandHandler = setTopUsersIntervalCommandHandler;
     }
 
     @PostMapping("reset")
@@ -38,6 +43,12 @@ public class AdminController {
     private Mono<Void> putDelay(@RequestBody() SetDelayRequest request) {
         var command = new SetChangesProcessingDelayCommand(request.delay());
         return setChangesProcessingDelayCommandHandler.execute(command);
+    }
+
+    @PutMapping("interval")
+    private Mono<Void> putInterval(@RequestBody() SetTopUsersIntervalRequest request) {
+        var command = new SetTopUsersIntervalCommand(request.interval());
+        return setTopUsersIntervalCommandHandler.execute(command);
     }
 
     @PostMapping("{userName}/subscribe")

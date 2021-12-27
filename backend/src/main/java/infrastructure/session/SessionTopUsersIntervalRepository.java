@@ -6,7 +6,7 @@ import application.users.topusers.TopUsersInterval;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SessionTopUsersIntervalRepository implements ISessionTopUsersIntervalRepository {
-    private final AtomicInteger interval = new AtomicInteger(TopUsersInterval.YEAR.ordinal());
+    private final AtomicInteger interval = new AtomicInteger(TopUsersInterval.DAY.ordinal());
 
     @Override
     public void setTopUsersInterval(TopUsersInterval interval) {
