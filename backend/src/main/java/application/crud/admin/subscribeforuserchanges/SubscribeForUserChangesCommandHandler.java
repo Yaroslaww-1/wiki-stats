@@ -2,7 +2,7 @@ package application.crud.admin.subscribeforuserchanges;
 
 import application.crud.admin.session.ISessionRepository;
 import application.crud.contracts.ICommandHandler;
-import application.crud.users.IUserRepository;
+import domain.user.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;

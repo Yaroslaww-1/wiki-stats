@@ -5,14 +5,15 @@ import styles from "./styles.module.scss";
 
 interface IProps {
   wikisStats: {
-    changesCount: number;
     wikiName: string;
+    changesCount: number;
   }[];
 }
 
 export const TopWikisByChangesComponent: React.FC<IProps> = ({
   wikisStats = [],
 }) => {
+  console.log(wikisStats);
   return (
     <>
       {wikisStats.length > 0 && (
@@ -22,7 +23,7 @@ export const TopWikisByChangesComponent: React.FC<IProps> = ({
           </div>
           <TableComponent
             data={wikisStats}
-            keys={["changesCount", "wikiName"]}
+            keys={["wikiName", "changesCount"]}
           />
         </div>
       )}

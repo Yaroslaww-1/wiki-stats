@@ -4,17 +4,23 @@ import application.crud.admin.session.ISessionRepository;
 import application.crud.users.subscribeduser.ISubscribedUserEventsRealtimeNotifier;
 import application.streaming.contracts.IStep;
 import domain.change.Change;
+import domain.change.IChangeEventsRealtimeNotifier;
+import domain.change.IChangeRepository;
+import domain.user.User;
+import domain.wiki.Wiki;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple3;
 
 @Component
-public class CreateChangeStep implements IStep<CreateChangeStepInput, Change> {
+public class CreateChangeStep implements IStep<CreateChangeStepInput, Tuple3<User, Wiki, Change>> {
     private final IChangeRepository changeRepository;
     private final IChangeEventsRealtimeNotifier changeEventsRealtimeNotifier;
     private final ISubscribedUserEventsRealtimeNotifier subscribedUserEventsRealtimeNotifier;
     private final ISessionRepository sessionRepository;
 
+    @Autowired
     public CreateChangeStep(
             IChangeRepository changeRepository,
             IChangeEventsRealtimeNotifier changeEventsRealtimeNotifier,
@@ -28,7 +34,7 @@ public class CreateChangeStep implements IStep<CreateChangeStepInput, Change> {
     }
 
     @Override
-    public Mono<Change> execute(CreateChangeStepInput input) {
+    public Mono<Tuple3<User, Wiki, Change>> execute(CreateChangeStepInput input) {
         return Mono.just(
                     new Change(
                         input.id(),
@@ -42,12 +48,11 @@ public class CreateChangeStep implements IStep<CreateChangeStepInput, Change> {
                 )
                 .delayUntil(changeRepository::add)
                 .delayUntil(changeEventsRealtimeNotifier::notifyChangeCreated)
-                .delayUntil(this::notifySubscribedUserChangeCreated);
-    }
-
-    private Mono<Change> notifySubscribedUserChangeCreated(Change change) {
-        return Mono.just(change)
-                .filter(c -> sessionRepository.isSubscribedForUserChanges(c.getEditor().getId()))
-                .delayUntil(subscribedUserEventsRealtimeNotifier::notifyChangeCreated);
+                .flatMap(value -> Mono.zip(
+                            Mono.just(input.user()),
+                            Mono.just(input.wiki()),
+                            Mono.just(value)
+                        )
+                );
     }
 }

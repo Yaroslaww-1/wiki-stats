@@ -1,15 +1,18 @@
 package infrastructure.postgres.wikis;
 
-import application.crud.wikis.IWikiRepository;
+import domain.wiki.IWikiRepository;
 import domain.wiki.Wiki;
 import infrastructure.postgres.PostgresConnectionFactory;
+import infrastructure.postgres.users.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
+import org.springframework.data.relational.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.Query.query;
 
 @Component
@@ -52,11 +55,31 @@ public class WikiRepository implements IWikiRepository {
                 .map(this::mapEntityToDomain);
     }
 
+    @Override
+    public Mono<Wiki> update(Wiki wiki) {
+        return connection.template.update(WikiEntity.class)
+                .matching(query(where("id").is(wiki.getId())))
+                .apply(
+                        Update
+                                .update("name", wiki.getName())
+                                .set("edits_count", wiki.getEditsCount())
+                )
+                .thenReturn(wiki);
+    }
+
     private Wiki mapEntityToDomain(WikiEntity wikiEntity) {
-        return new Wiki(wikiEntity.id(), wikiEntity.name());
+        return new Wiki(
+                wikiEntity.id(),
+                wikiEntity.name(),
+                wikiEntity.editsCount()
+        );
     }
 
     private WikiEntity mapDomainToEntity(Wiki wiki) {
-        return new WikiEntity(wiki.getId(), wiki.getName());
+        return new WikiEntity(
+                wiki.getId(),
+                wiki.getName(),
+                wiki.getEditsCount()
+        );
     }
 }

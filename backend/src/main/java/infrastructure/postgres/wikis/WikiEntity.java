@@ -6,5 +6,6 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("wikis")
 public record WikiEntity(
         @Id String id,
-        String name
+        String name,
+        Long editsCount
 ) { }

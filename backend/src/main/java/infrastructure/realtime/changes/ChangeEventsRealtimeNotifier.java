@@ -1,6 +1,6 @@
 package infrastructure.realtime.changes;
 
-import application.streaming.changes.steps.createchange.IChangeEventsRealtimeNotifier;
+import domain.change.IChangeEventsRealtimeNotifier;
 import domain.change.Change;
 import infrastructure.realtime.Event;
 import infrastructure.realtime.IRealtimeNotifier;
@@ -23,8 +23,8 @@ public class ChangeEventsRealtimeNotifier implements IChangeEventsRealtimeNotifi
                 change.getTitle(),
                 change.getComment(),
                 new EditorOfChangeCreatedEventPayload(
-                        change.getEditor().getId(),
-                        change.getEditor().getName()
+                        change.getUser().getId(),
+                        change.getUser().getName()
                 ),
                 new WikiOfChangeCreatedEventPayload(
                         change.getWiki().getId(),

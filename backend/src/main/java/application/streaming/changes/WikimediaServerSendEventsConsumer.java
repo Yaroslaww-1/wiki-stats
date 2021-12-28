@@ -48,11 +48,7 @@ public class WikimediaServerSendEventsConsumer {
                         .onErrorResume(__ -> Mono.empty()),
                         10
                 )
-                .transform(flux -> addChangeFlow.run(flux)
-                        .onBackpressureDrop()
-                        .doOnError(throwable -> logger.error("Exception during processing wikimedia event: " + throwable.getMessage()))
-                        .onErrorResume(__ -> Mono.empty())
-                );
+                .transform(addChangeFlow::run);
     }
 
     private Mono<AddChangeFlowInput> mapToAddChangeFlowInput(String eventData) {

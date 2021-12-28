@@ -12,7 +12,7 @@ public class Change {
     private String comment;
     private String type;
 
-    private User editor;
+    private User user;
     private Wiki wiki;
 
     public Change(
@@ -21,7 +21,7 @@ public class Change {
             String title,
             String comment,
             String type,
-            User editor,
+            User user,
             Wiki wiki
     ) {
         this.id = id;
@@ -29,7 +29,7 @@ public class Change {
         this.title = title;
         this.comment = comment;
         this.type = type;
-        this.editor = editor;
+        this.user = user;
         this.wiki = wiki;
     }
 
@@ -47,6 +47,6 @@ public class Change {
     public String getComment() { return this.comment; }
     public String getType() { return this.type; }
 
-    public User getEditor() { return this.editor; }
+    public User getUser() { return this.user; }
     public Wiki getWiki() { return this.wiki; }
 }

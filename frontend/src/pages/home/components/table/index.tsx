@@ -15,8 +15,7 @@ export const TableComponent: React.FC<IProps> = ({
   return (
     <table className={styles.root}>
       {data.map(item => {
-        const values = Object.keys(item)
-          .filter(key => keys.includes(key))
+        const values = keys.filter(key => item[key])
           .map(key => item[key]);
 
         return (

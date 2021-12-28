@@ -1,6 +1,6 @@
 package application.crud.admin.session;
 
-import application.crud.users.topusers.TopUsersInterval;
+import domain.user.TopUsersInterval;
 
 public interface ISessionTopUsersIntervalRepository {
     void setTopUsersInterval(TopUsersInterval range);

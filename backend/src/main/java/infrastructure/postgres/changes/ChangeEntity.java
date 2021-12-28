@@ -12,6 +12,6 @@ public record ChangeEntity(
         String title,
         String comment,
         String type,
-        String editorId,
+        String userId,
         String wikiId
 ) { }

@@ -1,11 +1,13 @@
 package infrastructure.realtime.users;
 
-import application.crud.users.IUserEventsRealtimeNotifier;
+import domain.user.IUserEventsRealtimeNotifier;
 import domain.user.User;
 import infrastructure.realtime.Event;
 import infrastructure.realtime.IRealtimeNotifier;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 public class UserEventsRealtimeNotifier implements IUserEventsRealtimeNotifier {
@@ -24,6 +26,22 @@ public class UserEventsRealtimeNotifier implements IUserEventsRealtimeNotifier {
         );
 
         realtimeNotifier.sendEvent(new Event("UserCreated", eventPayload));
+
+        return Mono.empty();
+    }
+
+    @Override
+    public Mono<Void> notifyTopUsersChanged(List<User> topUsers) {
+        var items = topUsers.stream()
+                .map(user -> new TopUsersEventPayload(
+                        user.getName(),
+                        user.getChangesCount()
+                ))
+                .toList();
+
+        var eventPayload = new TopUsersChangedEventPayload(items);
+
+        realtimeNotifier.sendEvent(new Event("TopUsersChanged", eventPayload));
 
         return Mono.empty();
     }

@@ -1,7 +1,7 @@
 package application.crud.users.getlist;
 
 import application.crud.contracts.IQueryHandler;
-import application.crud.users.IUserRepository;
+import domain.user.IUserRepository;
 import domain.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

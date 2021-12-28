@@ -1,7 +1,7 @@
 package application.crud.wikis.getstats;
 
 import application.crud.contracts.IQueryHandler;
-import application.crud.wikis.IWikiRepository;
+import domain.wiki.IWikiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;

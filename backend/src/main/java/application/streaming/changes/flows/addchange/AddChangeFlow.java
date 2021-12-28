@@ -7,18 +7,17 @@ import application.streaming.changes.steps.getorcreateuser.GetOrCreateUserStep;
 import application.streaming.changes.steps.getorcreateuser.GetOrCreateUserStepInput;
 import application.streaming.changes.steps.getorcreatewiki.GetOrCreateWikiStep;
 import application.streaming.changes.steps.getorcreatewiki.GetOrCreateWikiStepInput;
-import application.streaming.changes.steps.updateuserchangeaggregatestats.UpdateUserChangeAggregateStatsStep;
-import application.streaming.changes.steps.updateuserchangeaggregatestats.UpdateUserChangeAggregateStatsStepInput;
-import application.streaming.changes.steps.updateuserchangestats.UpdateUserChangeStatsStep;
-import application.streaming.changes.steps.updateuserchangestats.UpdateUserChangeStatsStepInput;
-import application.streaming.changes.steps.updateuserwikichangestats.UpdateUserWikiChangeStatsStep;
-import application.streaming.changes.steps.updateuserwikichangestats.UpdateUserWikiChangeStatsStepInput;
+import application.streaming.changes.steps.updatestatsandtops.UpdateStatsAndTopsStep;
+import application.streaming.changes.steps.updatestatsandtops.UpdateStatsAndTopsStepInput;
+import application.streaming.changes.steps.updatesubscribeduserinfo.UpdateSubscribedUserInfoStep;
+import application.streaming.changes.steps.updatesubscribeduserinfo.UpdateSubscribedUserInfoStepInput;
 import application.streaming.contracts.IFlow;
 import domain.change.Change;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple3;
 
 import java.time.Duration;
 
@@ -27,31 +26,32 @@ public class AddChangeFlow implements IFlow<AddChangeFlowInput, Change> {
     private final GetOrCreateUserStep getOrCreateUserStep;
     private final GetOrCreateWikiStep getOrCreateWikiStep;
     private final CreateChangeStep createChangeStep;
-    private final UpdateUserChangeStatsStep updateUserChangeStatsStep;
-    private final UpdateUserWikiChangeStatsStep updateUserWikiChangeStatsStep;
-    private final UpdateUserChangeAggregateStatsStep updateUserChangeAggregateStatsStep;
+    private final UpdateStatsAndTopsStep updateStatsAndTopsStep;
+    private final UpdateSubscribedUserInfoStep updateSubscribedUserInfoStep;
+    private final ISessionRepository sessionRepository;
 
     @Autowired
     public AddChangeFlow(
             GetOrCreateUserStep getOrCreateUserStep,
             GetOrCreateWikiStep getOrCreateWikiStep,
             CreateChangeStep createChangeStep,
-            UpdateUserChangeStatsStep updateUserChangeStatsStep,
-            UpdateUserWikiChangeStatsStep updateUserWikiChangeStatsStep,
-            UpdateUserChangeAggregateStatsStep updateUserChangeAggregateStatsStep
+            UpdateStatsAndTopsStep updateStatsAndTopsStep,
+            UpdateSubscribedUserInfoStep updateSubscribedUserInfoStep,
+            ISessionRepository sessionRepository
     ) {
         this.getOrCreateUserStep = getOrCreateUserStep;
         this.getOrCreateWikiStep = getOrCreateWikiStep;
         this.createChangeStep = createChangeStep;
-        this.updateUserChangeStatsStep = updateUserChangeStatsStep;
-        this.updateUserWikiChangeStatsStep = updateUserWikiChangeStatsStep;
-        this.updateUserChangeAggregateStatsStep = updateUserChangeAggregateStatsStep;
+        this.updateStatsAndTopsStep = updateStatsAndTopsStep;
+        this.updateSubscribedUserInfoStep = updateSubscribedUserInfoStep;
+        this.sessionRepository = sessionRepository;
     }
 
     @Override
     public Flux<Change> run(Flux<AddChangeFlowInput> inputFlux) {
         return inputFlux
-                .delayElements(Duration.ofMillis(75))
+                .filter(change -> change.type().equals("edit") || change.type().equals("add"))
+//                .delayElements(Duration.ofMillis(75))
                 .flatMap(input ->
                     Flux.zip(
                         getOrCreateUserStep.execute(new GetOrCreateUserStepInput(input.editor(), input.isBot())),
@@ -75,9 +75,13 @@ public class AddChangeFlow implements IFlow<AddChangeFlowInput, Change> {
                     );
                 })
                 .flatMap(createChangeStep::execute, 1)
-                .filter(change -> change.isAdd() || change.isEdit())
-                .delayUntil(change -> updateUserChangeStatsStep.execute(new UpdateUserChangeStatsStepInput(change)))
-                .delayUntil(change -> updateUserWikiChangeStatsStep.execute(new UpdateUserWikiChangeStatsStepInput(change)))
-                .delayUntil(change -> updateUserChangeAggregateStatsStep.execute(new UpdateUserChangeAggregateStatsStepInput(change)));
+                .delayUntil(tuple -> updateStatsAndTopsStep.execute(
+                        new UpdateStatsAndTopsStepInput(tuple.getT3(), tuple.getT1(), tuple.getT2())
+                ))
+                .filter(tuple -> sessionRepository.isSubscribedForUserChanges(tuple.getT1().getId()))
+                .delayUntil(tuple -> updateSubscribedUserInfoStep.execute(
+                        new UpdateSubscribedUserInfoStepInput(tuple.getT1(), tuple.getT2(), tuple.getT3())
+                ))
+                .map(Tuple3::getT3);
     }
 }

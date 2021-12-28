@@ -1,10 +1,10 @@
 package infrastructure.realtime.users.subscribeduser;
 
 import application.crud.users.subscribeduser.ISubscribedUserEventsRealtimeNotifier;
-import application.streaming.changes.steps.updateuserwikichangestats.TopUserWiki;
 import domain.change.Change;
-import domain.user.UserChangeAggregateStats;
-import domain.user.UserChangeStats;
+import domain.user.User;
+import domain.userchangesinterval.UserChangesInterval;
+import domain.userwiki.UserWiki;
 import infrastructure.realtime.Event;
 import infrastructure.realtime.IRealtimeNotifier;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ public class SubscribedUserEventsRealtimeNotifier implements ISubscribedUserEven
                 change.getTimestamp(),
                 change.getTitle(),
                 change.getComment(),
-                change.getEditor().getName(),
+                change.getUser().getName(),
                 change.getWiki().getName()
         );
 
@@ -37,25 +37,11 @@ public class SubscribedUserEventsRealtimeNotifier implements ISubscribedUserEven
     }
 
     @Override
-    public Mono<Void> notifyStatsChanged(UserChangeStats stats) {
-        var eventPayload = new SubscribedUserStatsChangedEventPayload(
-                stats.getStartTimestamp().toString(),
-                stats.getDurationInMinutes(),
-                stats.getChangesCount(),
-                stats.getUserId()
-        );
-
-        realtimeNotifier.sendEvent(new Event("SubscribedUserStatsChanged", eventPayload));
-
-        return Mono.empty();
-    }
-
-    @Override
-    public Mono<Void> notifyAggregateStatsChanged(UserChangeAggregateStats aggregateStats) {
-        var eventPayload = new SubscribedUserAggregateStatsChangedEventPayload(
-                aggregateStats.getUserId(),
-                aggregateStats.getAddCount(),
-                aggregateStats.getEditCount()
+    public Mono<Void> notifyUserChanged(User user) {
+        var eventPayload = new SubscribedUserChangedEventPayload(
+                user.getId(),
+                user.getAddsCount(),
+                user.getEditsCount()
         );
 
         realtimeNotifier.sendEvent(new Event("SubscribedUserAggregateStatsChanged", eventPayload));
@@ -64,11 +50,25 @@ public class SubscribedUserEventsRealtimeNotifier implements ISubscribedUserEven
     }
 
     @Override
-    public Mono<Void> notifyTopWikisChanged(String userId, List<TopUserWiki> topUserWikis) {
+    public Mono<Void> notifyLatestChangesIntervalChanged(UserChangesInterval userChangesInterval) {
+        var eventPayload = new SubscribedUserChangesIntervalChangedEventPayload(
+                userChangesInterval.getStartTimestamp().toString(),
+                userChangesInterval.getDurationInMinutes(),
+                userChangesInterval.getChangesCount(),
+                userChangesInterval.getUserId()
+        );
+
+        realtimeNotifier.sendEvent(new Event("SubscribedUserStatsChanged", eventPayload));
+
+        return Mono.empty();
+    }
+
+    @Override
+    public Mono<Void> notifyTopWikisChanged(String userId, List<UserWiki> topUserWikis) {
         var items = topUserWikis.stream()
-                .map(stats -> new SubscribedUserTopWikiChangedEventPayloadWiki(
-                        stats.changesCount(),
-                        stats.wikiName()
+                .map(userWiki -> new SubscribedUserTopWikiChangedEventPayloadWiki(
+                        userWiki.getChangesCount(),
+                        userWiki.getWikiName()
                 ))
                 .toList();
 

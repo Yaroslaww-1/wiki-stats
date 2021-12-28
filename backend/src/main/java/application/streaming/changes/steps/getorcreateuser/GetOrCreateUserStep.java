@@ -1,13 +1,11 @@
 package application.streaming.changes.steps.getorcreateuser;
 
-import application.crud.users.IUserChangeAggregateStatsRepository;
-import application.crud.users.IUserEventsRealtimeNotifier;
-import application.crud.users.IUserRepository;
+import domain.user.IUserEventsRealtimeNotifier;
+import domain.user.IUserRepository;
 import application.streaming.contracts.IStep;
 import domain.user.User;
-import domain.user.UserChangeAggregateStats;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Random;
@@ -18,16 +16,14 @@ import static org.springframework.data.relational.core.query.Query.query;
 @Component
 public class GetOrCreateUserStep implements IStep<GetOrCreateUserStepInput, User> {
     private final IUserRepository userRepository;
-    private final IUserChangeAggregateStatsRepository userChangeAggregateStatsRepository;
     private final IUserEventsRealtimeNotifier userEventsRealtimeNotifier;
 
+    @Autowired
     public GetOrCreateUserStep(
             IUserRepository userRepository,
-            IUserChangeAggregateStatsRepository userChangeAggregateStatsRepository,
             IUserEventsRealtimeNotifier userEventsRealtimeNotifier
     ) {
         this.userRepository = userRepository;
-        this.userChangeAggregateStatsRepository = userChangeAggregateStatsRepository;
         this.userEventsRealtimeNotifier = userEventsRealtimeNotifier;
     }
 
@@ -58,9 +54,6 @@ public class GetOrCreateUserStep implements IStep<GetOrCreateUserStepInput, User
         return Mono
                 .just(new User(editor, isBot))
                 .delayUntil(userRepository::add)
-                .delayUntil(user -> userChangeAggregateStatsRepository.add(
-                        new UserChangeAggregateStats(user.getId())
-                ))
                 .delayUntil(userEventsRealtimeNotifier::notifyUserCreated);
     }
 }

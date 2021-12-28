@@ -7,5 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public record UserEntity(
         @Id String id,
         String name,
-        Boolean isBot
+        Boolean isBot,
+        Long addsCount,
+        Long editsCount
 ) { }

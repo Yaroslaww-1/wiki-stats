@@ -1,11 +1,11 @@
 package application.crud.users.getuserchangesstats;
 
 import application.crud.contracts.IQueryHandler;
-import application.crud.users.IUserRepository;
-import application.crud.users.IUserChangeStatsRepository;
-import application.crud.users.IUserEventsRealtimeNotifier;
+import domain.user.IUserRepository;
+import domain.userchangesinterval.IUserChangesIntervalRepository;
+import domain.user.IUserEventsRealtimeNotifier;
 import domain.user.User;
-import domain.user.UserChangeStats;
+import domain.userchangesinterval.UserChangesInterval;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -20,12 +20,12 @@ import static org.springframework.data.relational.core.query.Query.query;
 public class GetUserChangesStatsQueryHandler implements IQueryHandler<GetUserChangesStatsQuery, UserChangesStatsDto> {
     private final IUserRepository userRepository;
     private final IUserEventsRealtimeNotifier userEventsRealtimeNotifier;
-    private final IUserChangeStatsRepository userChangeStatsRepository;
+    private final IUserChangesIntervalRepository userChangeStatsRepository;
 
     public GetUserChangesStatsQueryHandler(
             IUserRepository userRepository,
             IUserEventsRealtimeNotifier userEventsRealtimeNotifier,
-            IUserChangeStatsRepository userChangeStatsRepository
+            IUserChangesIntervalRepository userChangeStatsRepository
     ) {
         this.userRepository = userRepository;
         this.userEventsRealtimeNotifier = userEventsRealtimeNotifier;
@@ -64,7 +64,7 @@ public class GetUserChangesStatsQueryHandler implements IQueryHandler<GetUserCha
     }
 
     private List<UserChangesStatsPart> getWindowedChangeStats(
-            List<UserChangeStats> existingChangeStats,
+            List<UserChangesInterval> existingChangeStats,
             Long stepInMinutes,
             Long windowInMinutes
     ) {

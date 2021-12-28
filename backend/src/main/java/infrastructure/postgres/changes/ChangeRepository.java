@@ -1,7 +1,7 @@
 package infrastructure.postgres.changes;
 
 import domain.change.Change;
-import application.streaming.changes.steps.createchange.IChangeRepository;
+import domain.change.IChangeRepository;
 import infrastructure.postgres.PostgresConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,7 +30,7 @@ public class ChangeRepository implements IChangeRepository {
                 change.getTitle(),
                 change.getComment(),
                 change.getType(),
-                change.getEditor().getId(),
+                change.getUser().getId(),
                 change.getWiki().getId()
         );
     }
