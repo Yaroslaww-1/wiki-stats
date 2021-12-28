@@ -13,6 +13,7 @@ import { ResetContainer } from "./features/reset/containers";
 import { TopWikisByChangesContainer } from "./features/subscribed-user-stats/containers/top-wikis-by-changes";
 import { SubscribedUserChangesAggregateStatsContainer } from "./features/subscribed-user-stats/containers/subscribed-user-chages-aggregate-stats";
 import { TopUsersContainer } from "./features/top-users/containers";
+import { TopWikisContainer } from "./features/top-wikis/containers";
 
 export const HomePage: React.FC = () => {
   return (
@@ -38,6 +39,7 @@ export const HomePage: React.FC = () => {
         </div>
         <div className={styles.tops}>
           <TopUsersContainer />
+          <TopWikisContainer />
         </div>
       </div>
     </PageComponent>

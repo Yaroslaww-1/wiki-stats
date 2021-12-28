@@ -60,5 +60,14 @@
     margin-top: 25px;
 
     width: 100vw;
+
+    > * {
+      margin-right: 15px;
+
+      display: flex;
+      flex-direction: column;
+      align-self: flex-end;
+      height: 100%;
+    }
   }
 }
