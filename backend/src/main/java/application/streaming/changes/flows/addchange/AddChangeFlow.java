@@ -50,7 +50,7 @@ public class AddChangeFlow implements IFlow<AddChangeFlowInput, Change> {
     @Override
     public Flux<Change> run(Flux<AddChangeFlowInput> inputFlux) {
         return inputFlux
-                .filter(change -> change.type().equals("edit") || change.type().equals("add"))
+                .filter(change -> change.type().equals("edit") || change.type().equals("new"))
 //                .delayElements(Duration.ofMillis(75))
                 .flatMap(input ->
                     Flux.zip(
