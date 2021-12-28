@@ -3,6 +3,8 @@ package application.streaming.changes;
 import application.crud.admin.session.ISessionRepository;
 import application.streaming.changes.flows.addchange.AddChangeFlow;
 import application.streaming.changes.flows.addchange.AddChangeFlowInput;
+import application.streaming.changes.flows.initializecaches.InitializeCachesFlow;
+import application.streaming.changes.flows.initializecaches.InitializeCachesFlowInput;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -14,38 +16,44 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Objects;
 
 @Component
 public class WikimediaServerSendEventsConsumer {
     private final Logger logger;
     private final AddChangeFlow addChangeFlow;
     private final ISessionRepository sessionRepository;
+    private final InitializeCachesFlow initializeCachesFlow;
 
     @Autowired
     public WikimediaServerSendEventsConsumer(
             AddChangeFlow addChangeFlow,
             Logger logger,
-            ISessionRepository sessionRepository
+            ISessionRepository sessionRepository,
+            InitializeCachesFlow initializeCachesFlow
     ) {
         this.logger = logger;
         this.addChangeFlow = addChangeFlow;
         this.sessionRepository = sessionRepository;
+        this.initializeCachesFlow = initializeCachesFlow;
     }
 
     public Flux startConsuming() {
+        initializeCachesFlow.run(new InitializeCachesFlowInput()).block();
+        return this.runConsumer();
+    }
+
+    public Flux runConsumer() {
         var url = "https://stream.wikimedia.org/v2/stream/recentchange";
         var consumer = new ExternalServerSentEventsConsumer(url, "/");
         return consumer.startConsuming()
                 .onBackpressureDrop() //TODO: probably not the best solution
                 .mapNotNull(ServerSentEvent::data)
                 .flatMap(eventData -> this.mapToAddChangeFlowInput(eventData)
-                        .doOnError(throwable -> logger.error("Exception during parsing wikimedia event: " + throwable.getMessage()))
-                        .onErrorResume(__ -> Mono.empty()),
+                                .doOnError(throwable -> logger.error("Exception during parsing wikimedia event: " + throwable.getMessage()))
+                                .onErrorResume(__ -> Mono.empty()),
                         10
                 )
                 .transform(addChangeFlow::run);

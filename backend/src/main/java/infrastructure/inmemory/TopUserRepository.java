@@ -43,8 +43,37 @@ public class TopUserRepository implements ITopUserRepository {
 
     private void insertAndReturnOrdered(User topUser, List<User> topUsers) {
         topUsers.removeIf(user -> user.getId().equals(topUser.getId()));
-
         topUsers.add(topUser);
+        this.sortAndTruncate(topUsers);
+    }
+
+    @Override
+    public Mono<List<User>> setAndReturnOrdered(List<User> users, TopUsersInterval interval) {
+        if (interval == TopUsersInterval.DAY) {
+            this.topDayUsers.clear();
+            this.topDayUsers.addAll(users);
+            this.sortAndTruncate(this.topDayUsers);
+            return Mono.just(this.topDayUsers.stream().limit(10).toList());
+        }
+
+        if (interval == TopUsersInterval.MONTH) {
+            this.topMonthUsers.clear();
+            this.topMonthUsers.addAll(users);
+            this.sortAndTruncate(this.topMonthUsers);
+            return Mono.just(this.topMonthUsers.stream().limit(10).toList());
+        }
+
+        if (interval == TopUsersInterval.YEAR) {
+            this.topYearUsers.clear();
+            this.topYearUsers.addAll(users);
+            this.sortAndTruncate(this.topYearUsers);
+            return Mono.just(this.topYearUsers.stream().limit(10).toList());
+        }
+
+        return Mono.empty();
+    }
+
+    private void sortAndTruncate(List<User> topUsers) {
         topUsers.sort(new Comparator<User>() {
             public int compare(User o1, User o2){
                 if(o1.getChangesCount().equals(o2.getChangesCount()))

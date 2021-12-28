@@ -18,7 +18,21 @@ public class TopWikiRepository implements ITopWikiRepository {
         this.topWikis.removeIf(w -> w.getId().equals(wiki.getId()));
 
         this.topWikis.add(wiki);
-        this.topWikis.sort(new Comparator<Wiki>() {
+        this.sortAndTruncate(this.topWikis);
+
+        return Mono.just(this.topWikis.stream().toList());
+    }
+
+    @Override
+    public Mono<List<Wiki>> setAndReturnOrdered(List<Wiki> wikis) {
+        this.topWikis.clear();
+        this.topWikis.addAll(wikis);
+        this.sortAndTruncate(this.topWikis);
+        return Mono.just(this.topWikis.stream().limit(10).toList());
+    }
+
+    private void sortAndTruncate(List<Wiki> topWikis) {
+        topWikis.sort(new Comparator<Wiki>() {
             public int compare(Wiki o1, Wiki o2){
                 if(o1.getEditsCount().equals(o2.getEditsCount()))
                     return 0;
@@ -26,10 +40,8 @@ public class TopWikiRepository implements ITopWikiRepository {
             }
         });
 
-        while (this.topWikis.size() >= 10) {
-            this.topWikis.remove(this.topWikis.size() - 1);
+        while (topWikis.size() >= 10) {
+            topWikis.remove(topWikis.size() - 1);
         }
-
-        return Mono.just(this.topWikis.stream().toList());
     }
 }

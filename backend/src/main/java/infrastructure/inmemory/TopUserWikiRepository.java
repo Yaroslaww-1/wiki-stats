@@ -1,5 +1,6 @@
 package infrastructure.inmemory;
 
+import domain.user.User;
 import domain.userwiki.ITopUserWikiRepository;
 import domain.userwiki.UserWiki;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,21 @@ public class TopUserWikiRepository implements ITopUserWikiRepository {
         this.userWikiStats.removeIf(uw -> uw.getWikiId().equals(userWiki.getWikiId()));
 
         this.userWikiStats.add(userWiki);
-        this.userWikiStats.sort(new Comparator<UserWiki>() {
+        this.sortAndTruncate(this.userWikiStats);
+
+        return Mono.just(this.userWikiStats.stream().toList());
+    }
+
+    @Override
+    public Mono<List<UserWiki>> setAndReturnOrdered(String userId, List<UserWiki> userWikis) {
+        this.userWikiStats.clear();
+        this.userWikiStats.addAll(userWikis);
+        this.sortAndTruncate(this.userWikiStats);
+        return Mono.just(this.userWikiStats.stream().limit(10).toList());
+    }
+
+    private void sortAndTruncate(List<UserWiki> topUserWikis) {
+        topUserWikis.sort(new Comparator<UserWiki>() {
             public int compare(UserWiki o1, UserWiki o2){
                 if(o1.getChangesCount().equals(o2.getChangesCount()))
                     return 0;
@@ -27,10 +42,8 @@ public class TopUserWikiRepository implements ITopUserWikiRepository {
             }
         });
 
-        while (this.userWikiStats.size() >= 10) {
-            this.userWikiStats.remove(this.userWikiStats.size() - 1);
+        while (topUserWikis.size() >= 10) {
+            topUserWikis.remove(topUserWikis.size() - 1);
         }
-
-        return Mono.just(this.userWikiStats.stream().toList());
     }
 }

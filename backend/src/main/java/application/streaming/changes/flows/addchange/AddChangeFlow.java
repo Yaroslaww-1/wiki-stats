@@ -11,7 +11,7 @@ import application.streaming.changes.steps.updatestatsandtops.UpdateStatsAndTops
 import application.streaming.changes.steps.updatestatsandtops.UpdateStatsAndTopsStepInput;
 import application.streaming.changes.steps.updatesubscribeduserinfo.UpdateSubscribedUserInfoStep;
 import application.streaming.changes.steps.updatesubscribeduserinfo.UpdateSubscribedUserInfoStepInput;
-import application.streaming.contracts.IFlow;
+import application.streaming.contracts.IFluxFlow;
 import domain.change.Change;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,10 +19,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
 
-import java.time.Duration;
-
 @Component
-public class AddChangeFlow implements IFlow<AddChangeFlowInput, Change> {
+public class AddChangeFlow implements IFluxFlow<AddChangeFlowInput, Change> {
     private final GetOrCreateUserStep getOrCreateUserStep;
     private final GetOrCreateWikiStep getOrCreateWikiStep;
     private final CreateChangeStep createChangeStep;
